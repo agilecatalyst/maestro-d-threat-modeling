@@ -194,9 +194,16 @@ export function ResultsPage() {
           </div>
         </div>
 
-        {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner">{error}</div>}
 
-        {(loading || (shouldPoll && isRunning)) && (
+      {canEdit && (
+        <p className="review-disclaimer">
+          AI-generated starting point — review all threats and mitigations before backlog or audit use.
+          See <a href="https://github.com/agilecatalyst/maestro-d-threat-modeling/blob/main/SECURITY.md" target="_blank" rel="noreferrer">SECURITY.md</a>.
+        </p>
+      )}
+
+      {(loading || (shouldPoll && isRunning)) && (
           <>
             <PipelineProgress state={liveState} />
             <div className="empty">

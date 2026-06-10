@@ -10,13 +10,21 @@ from models import ThreatRecord
 logger = logging.getLogger(__name__)
 
 THREAT_API_URL = os.getenv("THREAT_API_URL", "http://api:8000")
+INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY", "")
+
+
+def _request_headers() -> dict:
+    headers = {}
+    if INTERNAL_API_KEY:
+        headers["X-Internal-Key"] = INTERNAL_API_KEY
+    return headers
 
 
 def _patch_threats(threat_model_id: str, op: str, threats: List[dict]) -> str:
     url = f"{THREAT_API_URL}/threat-designer/{threat_model_id}/threats"
     payload = {"op": op, "threats": threats}
     try:
-        response = httpx.patch(url, json=payload, timeout=30.0)
+        response = httpx.patch(url, json=payload, headers=_request_headers(), timeout=30.0)
         response.raise_for_status()
         data = response.json()
         count = len(data.get("threats") or [])

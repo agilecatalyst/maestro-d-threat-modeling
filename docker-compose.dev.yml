@@ -1,0 +1,15 @@
+# Dev overrides — expose internal services on localhost for debugging and pytest.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  tm-agent:
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  sentry:
+    ports:
+      - "127.0.0.1:8090:8090"

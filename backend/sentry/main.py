@@ -1,4 +1,5 @@
 import logging
+import os
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,7 @@ from fastapi.responses import JSONResponse
 from chat import clear_session, run_chat
 from models import InvocationRequest
 from prompt import context_from_input
+from security import parse_cors_origins
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +16,8 @@ app = FastAPI(title="Maestro'D Sentry", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=parse_cors_origins(os.getenv("CORS_ORIGINS")),
+    allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )

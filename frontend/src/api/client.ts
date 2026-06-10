@@ -6,6 +6,15 @@ import type {
 
 const API_BASE = import.meta.env.VITE_APP_ENDPOINT ?? "";
 
+function jsonHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const internalKey = import.meta.env.VITE_INTERNAL_API_KEY;
+  if (internalKey) {
+    headers["X-Internal-Key"] = internalKey;
+  }
+  return headers;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, init);
   if (!response.ok) {
@@ -124,7 +133,7 @@ export async function mutateThreats(
     meta: Record<string, unknown>;
   }>(`/threat-designer/${id}/threats`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ op, threats }),
   });
 }
@@ -140,7 +149,7 @@ export async function scanFlowThreats(
     meta: Record<string, unknown>;
   }>(`/threat-designer/${id}/threats/scan-flow`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(flow),
   });
 }

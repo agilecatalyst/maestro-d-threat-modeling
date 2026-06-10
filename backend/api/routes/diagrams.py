@@ -1,8 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db, LOCAL_USER
 from models import ThreatModel, JobStatus
 from storage import save_diagram
+from upload_validation import detect_image_extension
 import uuid
 
 router = APIRouter(prefix="/threat-designer/diagrams", tags=["diagrams"])
@@ -17,7 +18,13 @@ async def upload_diagram(file: UploadFile = File(...), db: Session = Depends(get
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="File too large")
 
-    extension = file.filename.split(".")[-1]
+    extension = detect_image_extension(content)
+    if not extension:
+        raise HTTPException(status_code=400, detail="Invalid image content (PNG or JPEG required)")
+
+    if file.content_type not in ["image/png", "image/jpeg"]:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
     relative_path = save_diagram(content, extension)
 
     new_id = uuid.uuid4()

@@ -13,6 +13,7 @@ from services.agent_client import invoke_agent, scan_flow_agent
 from services.export_service import render_json_export, render_pdf_export
 from services.threat_model_document import build_threat_model_document, parse_detail
 from services.threat_mutations import apply_mutation, rebuild_meta
+from security import require_internal_key
 
 router = APIRouter(prefix="/threat-designer", tags=["threat-models"])
 
@@ -170,7 +171,7 @@ def export_threat_model_pdf(job_id: UUID, db: Session = Depends(get_db)):
     )
 
 
-@router.patch("/{job_id}/threats")
+@router.patch("/{job_id}/threats", dependencies=[Depends(require_internal_key)])
 def mutate_threats(job_id: UUID, body: ThreatMutationRequest, db: Session = Depends(get_db)):
     document = _mutate_threats(db, job_id, body)
     return {
@@ -181,7 +182,7 @@ def mutate_threats(job_id: UUID, body: ThreatMutationRequest, db: Session = Depe
     }
 
 
-@router.post("/{job_id}/threats/scan-flow")
+@router.post("/{job_id}/threats/scan-flow", dependencies=[Depends(require_internal_key)])
 def scan_flow_threats(job_id: UUID, body: ScanFlowRequest, db: Session = Depends(get_db)):
     _tm_or_404(db, job_id)
     job = _job_or_404(db, job_id)

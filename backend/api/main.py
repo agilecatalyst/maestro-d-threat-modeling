@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from database import SessionLocal, run_migrations
 from routes import diagrams, threat_models
+from security import parse_cors_origins
 
 
 @asynccontextmanager
@@ -20,10 +22,7 @@ app = FastAPI(title="Maestro'D API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=parse_cors_origins(os.getenv("CORS_ORIGINS")),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,7 +43,7 @@ def health_check():
         return JSONResponse(
             status_code=503,
             content={
-                "status": "healthy",
+                "status": "unhealthy",
                 "service": "maestro-d-api",
                 "database": "disconnected",
             },

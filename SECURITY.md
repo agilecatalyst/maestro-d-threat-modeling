@@ -1,0 +1,54 @@
+# Security
+
+Maestro'D Threat Modeling is designed **local-first** for personal or trusted-team use. Treat generated threat models as a **review starting point**, not as authoritative security sign-off.
+
+## Scope
+
+| Mode | Intended use |
+|------|----------------|
+| **Local dev** | Single developer, localhost, no auth (`LOCAL_USER` stub) |
+| **Shared LAN / team** | Requires hardening below — not enabled by default |
+
+## Threat model disclaimer
+
+- LLM output may be incomplete, duplicated, or wrong for your context.
+- Always validate threats, mitigations, and architecture assumptions with a human reviewer.
+- Do not use exports as sole evidence for compliance or production approval.
+
+## Deployment hardening checklist
+
+### Network (P0)
+
+- Default `docker-compose.yml` binds API to **127.0.0.1:8000** only; Postgres, agent, and Sentry have **no host ports**.
+- For debugging, use `docker-compose.dev.yml` (still localhost-bound).
+- Do not expose Postgres or the agent port to untrusted networks.
+
+### Secrets (P0)
+
+- Change defaults in `.env`: `POSTGRES_PASSWORD`, `INFERENCE_API_KEY`.
+- Optionally set `INTERNAL_API_KEY` for Sentry → API mutation calls (Sentry sends `X-Internal-Key`).
+- Never commit `.env` or diagram uploads.
+
+### Application (P1)
+
+- Uploads: PNG/JPEG only, 10 MB max, magic-byte validation.
+- CORS: configure `CORS_ORIGINS` (comma-separated) — no wildcard on API or Sentry.
+- Rate limiting and audit logging: planned (see slice 013+).
+
+## Reporting vulnerabilities
+
+If you find a security issue in this project, open a private advisory or contact the repository maintainers. Do not open public issues for exploitable vulnerabilities before coordinated disclosure.
+
+## Dependencies
+
+Run periodically:
+
+```bash
+pip-audit -r backend/api/requirements.txt
+pip-audit -r backend/agent/requirements.txt
+npm audit --prefix frontend
+```
+
+## OWASP alignment
+
+This tool supports **security thinking acceleration** (STRIDE, DFD, mitigations). It does not replace threat modeling expertise, penetration testing, or formal AppSec review.

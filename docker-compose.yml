@@ -1,13 +1,13 @@
-# Maestro'D ThreatModeling - Docker Compose Scaffold
-# Run: cp .env.example .env && docker compose up --build -d
+# Maestro'D ThreatModeling
+# Default (hardened): API on localhost only; postgres/agent/sentry internal.
+# Dev ports: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Sentry:     docker compose --profile full up -d  (+ dev file if needed)
 
 services:
   postgres:
     image: postgres:16
     container_name: maestro_d_postgres
     env_file: .env
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -19,6 +19,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   api:
     build:
@@ -26,24 +27,25 @@ services:
     container_name: maestro_d_api
     env_file: .env
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       DIAGRAM_STORAGE_PATH: /data/diagrams
       THREAT_DESIGNER_URL: http://tm-agent:8080
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./data/diagrams:/data/diagrams
+    restart: unless-stopped
 
   tm-agent:
     build:
       context: ./backend/agent
     container_name: maestro_d_agent
     env_file: .env
-    ports:
-      - "8080:8080"
     environment:
       INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
       INFERENCE_API_KEY: ${INFERENCE_API_KEY}
@@ -57,6 +59,7 @@ services:
         condition: service_healthy
     volumes:
       - ./data/diagrams:/data/diagrams
+    restart: unless-stopped
 
   sentry:
     profiles: ["full"]
@@ -64,17 +67,18 @@ services:
       context: ./backend/sentry
     container_name: maestro_d_sentry
     env_file: .env
-    ports:
-      - "8090:8090"
     environment:
       INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
       INFERENCE_API_KEY: ${INFERENCE_API_KEY}
       LOCAL_MODEL: ${LOCAL_MODEL}
       THREAT_API_URL: http://api:8000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - api
+    restart: unless-stopped
 
 volumes:
   postgres_data:

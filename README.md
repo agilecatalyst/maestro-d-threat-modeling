@@ -12,7 +12,21 @@ See [NOTICE](NOTICE) for formal attribution.
 
 ## Status
 
-**Planning** — zie [specsrebuild.md](specsrebuild.md) en [agents.md](agents.md).
+**MVP 000–012** implemented — zie [slicedworkload.md](slicedworkload.md) en [SECURITY.md](SECURITY.md).
+
+## Quick start
+
+```bash
+cp .env.example .env
+# Hardened (localhost API only):
+docker compose --profile full up -d --build
+# Dev (expose postgres :5432, agent :8080, sentry :8090 on localhost):
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile full up -d --build
+
+cd frontend && npm install && npm run dev
+```
+
+Open http://localhost:5173 — API at http://127.0.0.1:8000
 
 ## Referentie-fork
 
