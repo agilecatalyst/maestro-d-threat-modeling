@@ -10,6 +10,7 @@
 | **010–011** | **IMPLEMENTED** — PDF + JSON export |
 | **012** | **IMPLEMENTED** — threat edit, flow scan, Sentry |
 | **013** | **IMPLEMENTED** — DevSecOps hardening (compose, CORS, upload, SECURITY.md) |
+| **014** | **IMPLEMENTED** — License & attribution (Apache 2.0, NOTICE, THIRD_PARTY_NOTICES) |
 
 MVP core **complete** · Sentry: `docker compose --profile full up`
 
@@ -19,7 +20,7 @@ MVP core **complete** · Sentry: `docker compose --profile full up`
 
 | Veld | Waarde |
 |------|--------|
-| **Status** | `IDLE` — slice 013 done |
+| **Status** | `IDLE` — slice 014 done |
 
 ---
 
@@ -27,6 +28,6 @@ MVP core **complete** · Sentry: `docker compose --profile full up`
 
 | Slice | Date |
 |-------|--------|
-| 013 security hardening | 2026-06-09 |
+| 014 license & attribution | 2026-06-09 |
 | 010–011 export | 2026-06-09 |
 | 009 frontend | 2026-06-09 |

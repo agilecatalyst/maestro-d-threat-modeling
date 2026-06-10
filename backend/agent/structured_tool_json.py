@@ -1,5 +1,8 @@
 """Parse tool-style JSON from plain LLM text (Gemma / local models)."""
 
+# Portions adapted from awslabs/threat-designer (Apache-2.0)
+# https://github.com/awslabs/threat-designer
+
 from __future__ import annotations
 
 import json

@@ -199,7 +199,11 @@ export function ResultsPage() {
       {canEdit && (
         <p className="review-disclaimer">
           AI-generated starting point — review all threats and mitigations before backlog or audit use.
-          See <a href="https://github.com/agilecatalyst/maestro-d-threat-modeling/blob/main/SECURITY.md" target="_blank" rel="noreferrer">SECURITY.md</a>.
+          See <a href="https://github.com/agilecatalyst/maestro-d-threat-modeling/blob/main/SECURITY.md" target="_blank" rel="noreferrer">SECURITY.md</a>
+          {" · "}
+          <a href="https://github.com/agilecatalyst/maestro-d-threat-modeling/blob/main/NOTICE" target="_blank" rel="noreferrer">NOTICE</a>
+          {" · "}
+          <a href="https://github.com/agilecatalyst/maestro-d-threat-modeling/blob/main/LICENSE" target="_blank" rel="noreferrer">Apache-2.0</a>
         </p>
       )}
 

@@ -1,5 +1,8 @@
 """Build FlowsList from JSON or plain-text LLM output."""
 
+# Portions adapted from awslabs/threat-designer (Apache-2.0)
+# https://github.com/awslabs/threat-designer
+
 from __future__ import annotations
 
 from typing import List, Optional

@@ -1,5 +1,8 @@
 """Extract FlowsList-shaped dicts from plain-text LLM output."""
 
+# Portions adapted from awslabs/threat-designer (Apache-2.0)
+# https://github.com/awslabs/threat-designer
+
 from __future__ import annotations
 
 import re

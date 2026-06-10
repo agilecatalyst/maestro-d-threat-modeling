@@ -1,5 +1,8 @@
 """Extract payload between [TOOL_REQUEST] and [END_TOOL_REQUEST]."""
 
+# Portions adapted from awslabs/threat-designer (Apache-2.0)
+# https://github.com/awslabs/threat-designer
+
 from __future__ import annotations
 
 from typing import Optional

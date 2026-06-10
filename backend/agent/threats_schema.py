@@ -1,3 +1,6 @@
+# Portions adapted from awslabs/threat-designer (Apache-2.0)
+# https://github.com/awslabs/threat-designer
+
 from typing import Annotated, List, Literal
 
 from pydantic import BaseModel, Field

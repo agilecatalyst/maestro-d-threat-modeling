@@ -1,6 +1,10 @@
 # Maestro'D ThreatModeling
 
-Local-first AI threat modeling — volwaardige analog van [AWS Threat Designer](https://github.com/awslabs/threat-designer), zonder cloud lock-in.
+Local-first AI threat modeling — local-first reimplementation inspired by [AWS Threat Designer](https://github.com/awslabs/threat-designer), zonder cloud lock-in.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution.
 
 ## Credits
 
@@ -8,11 +12,11 @@ Inspired by AWS Threat Designer · Envisioned by **Maître D** ·
 Designed & architected with Lead Architect **Maestro Data** (Cursor) ·  
 Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 
-See [NOTICE](NOTICE) for formal attribution.
+See [NOTICE](NOTICE) for formal attribution. AWS Threat Designer is a trademark of Amazon.com, Inc.; this project is not affiliated with AWS.
 
 ## Status
 
-**MVP 000–012** implemented — zie [slicedworkload.md](slicedworkload.md) en [SECURITY.md](SECURITY.md).
+**MVP 000–014** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [LICENSE](LICENSE).
 
 ## Quick start
 

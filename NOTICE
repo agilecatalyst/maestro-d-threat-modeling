@@ -1,7 +1,7 @@
 Maestro'D ThreatModeling
-Copyright 2026 Maître D and contributors
+Copyright 2026 Dirk Verstraete (Maître D) and contributors
 
-Inspired by AWS Threat Designer (https://github.com/awslabs/threat-designer), licensed under the Apache License 2.0.
+Licensed under the Apache License, Version 2.0. See LICENSE.
 
 Envisioned by Dirk Verstraete (Maître D).
 Designed and architected with Lead Architect Maestro Data (Cursor agent).
@@ -11,5 +11,24 @@ This project is not affiliated with or endorsed by Amazon Web Services, Inc.
 
 ---
 
-When distributing derivative works or substantial portions of concepts derived from
-threat-designer, retain applicable Apache 2.0 notices from the upstream project.
+Third-party and upstream attribution
+
+This project is a local-first reimplementation inspired by AWS Threat Designer.
+Portions of the threat-modeling pipeline (LLM output parsers, structured JSON
+extraction, STRIDE-oriented schemas, and workflow concepts) were adapted from:
+
+  AWS Threat Designer
+  https://github.com/awslabs/threat-designer
+  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  Licensed under the Apache License, Version 2.0.
+
+Reference fork used during development (QA, pipeline captures, design notes):
+
+  threat-designer-owasped (community fork of awslabs/threat-designer)
+  Licensed under the Apache License, Version 2.0.
+
+See THIRD_PARTY_NOTICES.md for module-level attribution.
+
+Trademarks: "AWS", "Amazon Web Services", and "Threat Designer" are trademarks
+of Amazon.com, Inc. or its affiliates. Use here is for descriptive attribution
+only, as permitted under Apache License 2.0 Section 6.
