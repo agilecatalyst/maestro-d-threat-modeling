@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>{{ doc.title or "Threat Model Report" }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 22mm 16mm;
+    }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.45;
+      color: #1a1f26;
+    }
+    h1 {
+      font-size: 20pt;
+      margin: 0 0 4pt;
+      color: #0f1419;
+    }
+    h2 {
+      font-size: 13pt;
+      margin: 18pt 0 8pt;
+      padding-bottom: 4pt;
+      border-bottom: 1.5pt solid #c9a227;
+      color: #0f1419;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 10pt 0 4pt;
+    }
+    .meta {
+      color: #5a6573;
+      font-size: 9pt;
+      margin-bottom: 14pt;
+    }
+    .meta span { margin-right: 12pt; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0 12pt;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 1pt solid #d8dde4;
+      padding: 5pt 6pt;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f5f8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 8pt;
+      letter-spacing: 0.03em;
+    }
+    .threat {
+      border: 1pt solid #d8dde4;
+      border-left: 3pt solid #c9a227;
+      padding: 8pt 10pt;
+      margin-bottom: 8pt;
+      page-break-inside: avoid;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2pt 5pt;
+      border-radius: 3pt;
+      background: #eee8dc;
+      color: #6b4f1d;
+      margin-right: 4pt;
+    }
+    .summary {
+      background: #f8f9fb;
+      border: 1pt solid #e2e6ec;
+      padding: 10pt;
+      white-space: pre-wrap;
+    }
+    .colophon {
+      margin-top: 24pt;
+      padding-top: 10pt;
+      border-top: 1pt solid #d8dde4;
+      font-size: 8pt;
+      color: #666;
+    }
+    .colophon p { margin: 2pt 0; }
+    .stats {
+      display: flex;
+      gap: 12pt;
+      margin: 8pt 0 14pt;
+    }
+    .stat-box {
+      border: 1pt solid #d8dde4;
+      padding: 8pt 12pt;
+      min-width: 80pt;
+    }
+    .stat-box strong {
+      display: block;
+      font-size: 14pt;
+      color: #0f1419;
+    }
+    .stat-box span {
+      font-size: 8pt;
+      text-transform: uppercase;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ doc.title or "Threat Model Report" }}</h1>
+  <div class="meta">
+    <span><strong>ID:</strong> {{ doc.id }}</span>
+    <span><strong>State:</strong> {{ doc.state }}</span>
+    <span><strong>Exported:</strong> {{ exported_at }}</span>
+    {% if doc.application_type %}<span><strong>Type:</strong> {{ doc.application_type }}</span>{% endif %}
+  </div>
+
+  {% if doc.summary %}
+  <h2>Executive summary</h2>
+  <div class="summary">{{ doc.summary }}</div>
+  {% endif %}
+
+  {% if doc.assets %}
+  <h2>Assets &amp; entities</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Name</th><th>Criticality</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      {% for asset in doc.assets %}
+      <tr>
+        <td>{{ asset.type }}</td>
+        <td>{{ asset.name }}</td>
+        <td>{{ asset.criticality }}</td>
+        <td>{{ asset.description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if doc.flows and doc.flows.data_flows %}
+  <h2>Data flows</h2>
+  <table>
+    <thead>
+      <tr><th>Source</th><th>Target</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      {% for flow in doc.flows.data_flows %}
+      <tr>
+        <td>{{ flow.source_entity }}</td>
+        <td>{{ flow.target_entity }}</td>
+        <td>{{ flow.flow_description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if doc.flows and doc.flows.threat_sources %}
+  <h2>Threat actors</h2>
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Description</th><th>Examples</th></tr>
+    </thead>
+    <tbody>
+      {% for source in doc.flows.threat_sources %}
+      <tr>
+        <td>{{ source.category }}</td>
+        <td>{{ source.description }}</td>
+        <td>{{ source.example }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if doc.threats %}
+  <h2>Threat catalog (STRIDE)</h2>
+  <div class="stats">
+    <div class="stat-box">
+      <span>Total threats</span>
+      <strong>{{ doc.meta.threat_count if doc.meta and doc.meta.threat_count else doc.threats|length }}</strong>
+    </div>
+  </div>
+  {% for threat in doc.threats %}
+  <div class="threat">
+    <h3>{{ threat.name }}</h3>
+    <span class="badge">{{ threat.stride_category }}</span>
+    <span class="badge">{{ threat.likelihood }}</span>
+    <p>{{ threat.description }}</p>
+    <p><strong>Target:</strong> {{ threat.target }} · <strong>Source:</strong> {{ threat.source }}</p>
+    <p><strong>Vector:</strong> {{ threat.vector }}</p>
+    <p><strong>Impact:</strong> {{ threat.impact }}</p>
+    {% if threat.mitigations %}
+    <p><strong>Mitigations:</strong> {{ threat.mitigations|join("; ") }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="colophon">
+    <h2 style="border:none;margin-top:0;padding:0;font-size:10pt;">Colophon</h2>
+    {% for line in notice_lines %}
+    <p>{{ line }}</p>
+    {% endfor %}
+    <p>Report generated {{ exported_at }} · Model {{ doc.id }}</p>
+  </div>
+</body>
+</html>

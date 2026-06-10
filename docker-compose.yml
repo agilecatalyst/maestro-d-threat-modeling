@@ -1,0 +1,80 @@
+# Maestro'D ThreatModeling - Docker Compose Scaffold
+# Run: cp .env.example .env && docker compose up --build -d
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: maestro_d_postgres
+    env_file: .env
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend/api
+    container_name: maestro_d_api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DIAGRAM_STORAGE_PATH: /data/diagrams
+      THREAT_DESIGNER_URL: http://tm-agent:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data/diagrams:/data/diagrams
+
+  tm-agent:
+    build:
+      context: ./backend/agent
+    container_name: maestro_d_agent
+    env_file: .env
+    ports:
+      - "8080:8080"
+    environment:
+      INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
+      INFERENCE_API_KEY: ${INFERENCE_API_KEY}
+      LOCAL_MODEL: ${LOCAL_MODEL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DIAGRAM_STORAGE_PATH: /data/diagrams
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data/diagrams:/data/diagrams
+
+  sentry:
+    profiles: ["full"]
+    build:
+      context: ./backend/sentry
+    container_name: maestro_d_sentry
+    env_file: .env
+    ports:
+      - "8090:8090"
+    environment:
+      INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
+      INFERENCE_API_KEY: ${INFERENCE_API_KEY}
+      LOCAL_MODEL: ${LOCAL_MODEL}
+      THREAT_API_URL: http://api:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

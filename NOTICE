@@ -1,0 +1,15 @@
+Maestro'D ThreatModeling
+Copyright 2026 Maître D and contributors
+
+Inspired by AWS Threat Designer (https://github.com/awslabs/threat-designer), licensed under the Apache License 2.0.
+
+Envisioned by Dirk Verstraete (Maître D).
+Designed and architected with Lead Architect Maestro Data (Cursor agent).
+Local model — weapon of choice: Gemma 4 12B (coding and threat modeling).
+
+This project is not affiliated with or endorsed by Amazon Web Services, Inc.
+
+---
+
+When distributing derivative works or substantial portions of concepts derived from
+threat-designer, retain applicable Apache 2.0 notices from the upstream project.

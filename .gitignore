@@ -1,0 +1,16 @@
+.env
+.env.local
+frontend/.env.local
+data/diagrams/*
+!data/diagrams/.gitkeep
+scripts/last_builder_response_*.md
+__pycache__/
+*.pyc
+.venv/
+.venv312/
+.pytest_cache/
+node_modules/
+dist/
+.DS_Store
+*.pdf
+!docs/samples/
