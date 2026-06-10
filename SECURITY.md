@@ -33,7 +33,16 @@ Maestro'D Threat Modeling is designed **local-first** for personal or trusted-te
 
 - Uploads: PNG/JPEG only, 10 MB max, magic-byte validation.
 - CORS: configure `CORS_ORIGINS` (comma-separated) — no wildcard on API or Sentry.
-- Rate limiting and audit logging: planned (see slice 013+).
+- Description field capped at **16,000 characters** (API + UI).
+- In-memory rate limits (per client IP): upload 10/min, start job 5/min, flow scan 3/min, Sentry chat 10/min → HTTP 429. Disable in dev with `API_RATE_LIMIT_ENABLED=false`.
+- **Audit log** (`audit_log` table): threat PATCH and flow-scan mutations recorded with action, threat names, and source IP.
+
+### LLM trust model (P1)
+
+- User-supplied **description and diagram** are passed to the local LLM as prompt context. Treat them as untrusted input (prompt injection risk).
+- The LLM may suggest incorrect threats or mitigations; human review is mandatory before acting on output.
+- Sentry chat can mutate the threat catalog via internal API calls — keep `INTERNAL_API_KEY` set when Sentry is enabled on a shared network.
+- Do not paste secrets, credentials, or PII into descriptions or chat; they may appear in logs or exports.
 
 ## Reporting vulnerabilities
 

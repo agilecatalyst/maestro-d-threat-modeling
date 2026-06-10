@@ -16,7 +16,7 @@ See [NOTICE](NOTICE) for formal attribution. AWS Threat Designer is a trademark 
 
 ## Status
 
-**MVP 000–014** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [LICENSE](LICENSE).
+**MVP 000–016** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [docs/backlog.md](docs/backlog.md).
 
 ## Quick start
 
@@ -31,6 +31,12 @@ cd frontend && npm install && npm run dev
 ```
 
 Open http://localhost:5173 — API at http://127.0.0.1:8000
+
+```bash
+# Smoke (API up, catalog responds)
+bash scripts/smoke.sh
+# or from frontend/: npm run smoke
+```
 
 ## Referentie-fork
 

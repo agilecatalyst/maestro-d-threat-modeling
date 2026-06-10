@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   getThreatModel,
   pollUntilComplete,
@@ -7,6 +7,10 @@ import {
   mutateThreats,
   scanFlowThreats,
   PollTimeoutError,
+  POLL_TIMEOUT_MS,
+  mergeStatusIntoModel,
+  retryThreatModel,
+  diagramFileUrl,
 } from "../api/client";
 import { PipelineProgress } from "../components/PipelineProgress";
 import { StateBadge } from "../components/Layout";
@@ -20,6 +24,7 @@ type Tab = "summary" | "assets" | "flows" | "threats";
 
 export function ResultsPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shouldPoll = searchParams.get("running") === "1";
 
@@ -34,6 +39,8 @@ export function ResultsPage() {
   const [sentryOpen, setSentryOpen] = useState(false);
   const [flowScanBusy, setFlowScanBusy] = useState<string | null>(null);
   const [mutationBusy, setMutationBusy] = useState(false);
+  const [strideFilter, setStrideFilter] = useState<string | null>(null);
+  const [retryBusy, setRetryBusy] = useState(false);
 
   const load = async (modelId: string) => {
     const data = await getThreatModel(modelId);
@@ -52,9 +59,20 @@ export function ResultsPage() {
       try {
         if (shouldPoll) {
           try {
-            await pollUntilComplete(id, (state) => {
-              if (!cancelled) setLiveState(state);
-            });
+            await pollUntilComplete(
+              id,
+              (state) => {
+                if (!cancelled) setLiveState(state);
+              },
+              2500,
+              POLL_TIMEOUT_MS,
+              (status) => {
+                if (!cancelled) {
+                  setModel((prev) => mergeStatusIntoModel(id, status, prev));
+                  setLoading(false);
+                }
+              },
+            );
           } catch (err) {
             if (err instanceof PollTimeoutError && !cancelled) {
               await load(id);
@@ -84,6 +102,33 @@ export function ResultsPage() {
   const isRunning = state !== "COMPLETE" && state !== "FAILED";
   const canExport = state === "COMPLETE";
   const canEdit = state === "COMPLETE" || state === "THREATS_DONE";
+  const isFailed = state === "FAILED";
+  const showBody = model && (!loading || (shouldPoll && isRunning));
+
+  const strideCategories = useMemo(() => {
+    const cats = new Set((model?.threats ?? []).map((t) => t.stride_category));
+    return Array.from(cats).sort();
+  }, [model?.threats]);
+
+  const filteredThreats = useMemo(() => {
+    const threats = model?.threats ?? [];
+    if (!strideFilter) return threats;
+    return threats.filter((t) => t.stride_category === strideFilter);
+  }, [model?.threats, strideFilter]);
+
+  const handleRetry = async () => {
+    if (!model) return;
+    setRetryBusy(true);
+    setError(null);
+    try {
+      await retryThreatModel(model);
+      navigate(`/models/${model.id}?running=1`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Retry failed");
+    } finally {
+      setRetryBusy(false);
+    }
+  };
 
   const applyMutationResult = (result: { threats: Threat[]; meta?: ThreatModelResult["meta"] }) => {
     setModel((prev) =>
@@ -207,9 +252,9 @@ export function ResultsPage() {
         </p>
       )}
 
-      {(loading || (shouldPoll && isRunning)) && (
+      {(loading && !model) || (shouldPoll && isRunning && !model?.summary && !model?.assets?.length) ? (
           <>
-            <PipelineProgress state={liveState} />
+            <PipelineProgress state={liveState} error={model?.error} />
             <div className="empty">
               <div className="spinner" style={{ margin: "0 auto 0.75rem" }} />
               {isRunning
@@ -217,11 +262,35 @@ export function ResultsPage() {
                 : "Loading results…"}
             </div>
           </>
-        )}
+        ) : null}
 
-        {!loading && model && (
+        {showBody && model && (
           <>
-            <PipelineProgress state={state} />
+            <PipelineProgress state={state} error={model.error} />
+
+            {isFailed && (
+              <div className="actions-row" style={{ marginTop: "0.75rem" }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={retryBusy || !model.input_description}
+                  onClick={() => void handleRetry()}
+                >
+                  {retryBusy ? "Retrying…" : "Retry pipeline"}
+                </button>
+                {!model.input_description && (
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                    No saved description — start a new model from the wizard.
+                  </span>
+                )}
+              </div>
+            )}
+
+            {isRunning && (
+              <p className="subtitle" style={{ marginTop: "0.75rem" }}>
+                Partial results below — pipeline still running ({liveState.replace(/_/g, " ").toLowerCase()}).
+              </p>
+            )}
 
             {model.meta && (
               <div className="meta-grid">
@@ -255,6 +324,19 @@ export function ResultsPage() {
 
             {tab === "summary" && (
               <div>
+                {id && model.diagram_path && (
+                  <img
+                    src={diagramFileUrl(id)}
+                    alt="Architecture diagram"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: 280,
+                      borderRadius: 8,
+                      marginBottom: "1rem",
+                      border: "1px solid var(--border)",
+                    }}
+                  />
+                )}
                 {model.summary ? (
                   <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.65 }}>{model.summary}</p>
                 ) : (
@@ -359,9 +441,30 @@ export function ResultsPage() {
                     </button>
                   </div>
                 )}
+                {strideCategories.length > 1 && (
+                  <div className="actions-row" style={{ marginTop: 0, marginBottom: "0.75rem", flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className={`btn btn-ghost ${strideFilter === null ? "active" : ""}`}
+                      onClick={() => setStrideFilter(null)}
+                    >
+                      All
+                    </button>
+                    {strideCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        className={`btn btn-ghost ${strideFilter === cat ? "active" : ""}`}
+                        onClick={() => setStrideFilter(cat)}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="grid-cards">
-                  {(model.threats?.length ?? 0) > 0 ? (
-                    model.threats!.map((threat) => (
+                  {filteredThreats.length > 0 ? (
+                    filteredThreats.map((threat) => (
                       <ThreatCard
                         key={threat.name}
                         threat={threat}

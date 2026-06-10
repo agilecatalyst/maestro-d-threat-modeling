@@ -1,23 +1,41 @@
 import json
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import Response
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from database import LOCAL_USER, get_db
+from middleware.rate_limit import client_ip, rate_limit_dependency
 from models import JobStatus, ThreatModel
 from schemas import ScanFlowRequest, StartThreatModelRequest, ThreatItem, ThreatModelListItem, ThreatModelStatusResponse, ThreatMutationRequest
 from services.agent_client import invoke_agent, scan_flow_agent
+from services.audit_log import audit_mutation, record_audit
 from services.export_service import render_json_export, render_pdf_export
 from services.threat_model_document import build_threat_model_document, parse_detail
 from services.threat_mutations import apply_mutation, rebuild_meta
 from security import require_internal_key
+from storage import delete_diagram
 
 router = APIRouter(prefix="/threat-designer", tags=["threat-models"])
 
 MUTABLE_STATES = {"COMPLETE", "THREATS_DONE"}
+RESTARTABLE_STATES = {"PENDING", "FAILED", "COMPLETE", "THREATS_DONE"}
+PIPELINE_BUSY_STATES = {"PROCESSING", "SUMMARIZED", "ASSETS_DONE", "FLOWS_DONE"}
+
+
+def _threat_count_from_job(job: JobStatus | None) -> int | None:
+    if not job or not job.detail:
+        return None
+    detail = parse_detail(job.detail)
+    meta = detail.get("meta") or {}
+    if isinstance(meta.get("threat_count"), int):
+        return meta["threat_count"]
+    threats = detail.get("threats")
+    if isinstance(threats, list):
+        return len(threats)
+    return None
 
 
 def _job_or_404(db: Session, job_id: UUID) -> JobStatus:
@@ -70,17 +88,28 @@ def _mutate_threats(db: Session, job_id: UUID, body: ThreatMutationRequest) -> d
     return build_threat_model_document(_tm_or_404(db, job_id), job)
 
 
-@router.post("")
+@router.post("", dependencies=[Depends(rate_limit_dependency("start_job"))])
 def start_threat_model(body: StartThreatModelRequest, db: Session = Depends(get_db)):
     tm = _tm_or_404(db, body.id)
     job = _job_or_404(db, body.id)
+
+    if job.state in PIPELINE_BUSY_STATES:
+        raise HTTPException(status_code=409, detail=f"Pipeline already running (state {job.state})")
+    if job.state not in RESTARTABLE_STATES:
+        raise HTTPException(status_code=400, detail=f"Cannot restart pipeline from state {job.state}")
 
     if body.title:
         tm.title = body.title
     if body.application_type:
         tm.application_type = body.application_type
 
+    detail = parse_detail(job.detail)
+    if body.description:
+        detail["input_description"] = body.description
+    detail.pop("error", None)
+    job.detail = json.dumps(detail)
     job.state = "PROCESSING"
+    job.retry_count = (job.retry_count or 0) + 1
     db.commit()
 
     try:
@@ -92,7 +121,9 @@ def start_threat_model(body: StartThreatModelRequest, db: Session = Depends(get_
         )
     except RuntimeError as exc:
         job.state = "FAILED"
-        job.detail = json.dumps({"error": str(exc)})
+        fail_detail = parse_detail(job.detail)
+        fail_detail["error"] = str(exc)
+        job.detail = json.dumps(fail_detail)
         db.commit()
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -125,17 +156,20 @@ def list_threat_models(
         .limit(limit)
         .all()
     )
-    items = [
-        ThreatModelListItem(
-            id=str(tm.id),
-            title=tm.title,
-            state=job.state if job else "PENDING",
-            diagram_path=tm.diagram_path,
-            application_type=tm.application_type,
-            updated_at=tm.updated_at.isoformat() if tm.updated_at else None,
-        ).model_dump()
-        for tm, job in rows
-    ]
+    items = []
+    for tm, job in rows:
+        detail = parse_detail(job.detail if job else None)
+        items.append(
+            ThreatModelListItem(
+                id=str(tm.id),
+                title=tm.title,
+                state=job.state if job else "PENDING",
+                diagram_path=tm.diagram_path,
+                application_type=tm.application_type,
+                updated_at=tm.updated_at.isoformat() if tm.updated_at else None,
+                threat_count=_threat_count_from_job(job),
+            ).model_dump()
+        )
     return {"items": items, "count": len(items)}
 
 
@@ -172,8 +206,20 @@ def export_threat_model_pdf(job_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.patch("/{job_id}/threats", dependencies=[Depends(require_internal_key)])
-def mutate_threats(job_id: UUID, body: ThreatMutationRequest, db: Session = Depends(get_db)):
+def mutate_threats(
+    job_id: UUID,
+    body: ThreatMutationRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     document = _mutate_threats(db, job_id, body)
+    audit_mutation(
+        db,
+        threat_model_id=job_id,
+        op=body.op,
+        threats=[row.model_dump() for row in body.threats],
+        source_ip=client_ip(request),
+    )
     return {
         "id": document["id"],
         "state": document["state"],
@@ -182,8 +228,16 @@ def mutate_threats(job_id: UUID, body: ThreatMutationRequest, db: Session = Depe
     }
 
 
-@router.post("/{job_id}/threats/scan-flow", dependencies=[Depends(require_internal_key)])
-def scan_flow_threats(job_id: UUID, body: ScanFlowRequest, db: Session = Depends(get_db)):
+@router.post(
+    "/{job_id}/threats/scan-flow",
+    dependencies=[Depends(require_internal_key), Depends(rate_limit_dependency("scan_flow"))],
+)
+def scan_flow_threats(
+    job_id: UUID,
+    body: ScanFlowRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     _tm_or_404(db, job_id)
     job = _job_or_404(db, job_id)
     if job.state not in MUTABLE_STATES:
@@ -216,6 +270,17 @@ def scan_flow_threats(job_id: UUID, body: ScanFlowRequest, db: Session = Depends
             continue
 
     if not valid_rows:
+        record_audit(
+            db,
+            threat_model_id=job_id,
+            action="scan_flow",
+            detail={
+                "source_entity": body.source_entity,
+                "target_entity": body.target_entity,
+                "added": 0,
+            },
+            source_ip=client_ip(request),
+        )
         return {
             "id": str(job_id),
             "added": 0,
@@ -225,6 +290,17 @@ def scan_flow_threats(job_id: UUID, body: ScanFlowRequest, db: Session = Depends
 
     mutation = ThreatMutationRequest(op="add", threats=valid_rows)
     document = _mutate_threats(db, job_id, mutation)
+    record_audit(
+        db,
+        threat_model_id=job_id,
+        action="scan_flow",
+        detail={
+            "source_entity": body.source_entity,
+            "target_entity": body.target_entity,
+            "added": len(valid_rows),
+        },
+        source_ip=client_ip(request),
+    )
     return {
         "id": document["id"],
         "added": len(valid_rows),
@@ -233,9 +309,20 @@ def scan_flow_threats(job_id: UUID, body: ScanFlowRequest, db: Session = Depends
     }
 
 
+@router.delete("/{job_id}")
+def delete_threat_model(job_id: UUID, db: Session = Depends(get_db)):
+    tm = _tm_or_404(db, job_id)
+    diagram_path = tm.diagram_path
+    db.delete(tm)
+    db.commit()
+    delete_diagram(diagram_path)
+    return {"id": str(job_id), "deleted": True}
+
+
 @router.get("/{job_id}")
 def get_threat_model(job_id: UUID, db: Session = Depends(get_db)):
     document = _document_for(db, job_id)
+    detail = parse_detail(_job_or_404(db, job_id).detail)
     return {
         "id": document["id"],
         "owner": document["owner"],
@@ -244,6 +331,7 @@ def get_threat_model(job_id: UUID, db: Session = Depends(get_db)):
         "application_type": document["application_type"],
         "state": document["state"],
         "updated_at": document["updated_at"],
+        "input_description": detail.get("input_description"),
         "summary": document.get("summary"),
         "assets": document.get("assets", []),
         "flows": document.get("flows", {}),

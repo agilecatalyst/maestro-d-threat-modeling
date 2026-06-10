@@ -13,3 +13,9 @@ services:
   sentry:
     ports:
       - "127.0.0.1:8090:8090"
+    environment:
+      API_RATE_LIMIT_ENABLED: "false"
+
+  api:
+    environment:
+      API_RATE_LIMIT_ENABLED: "false"

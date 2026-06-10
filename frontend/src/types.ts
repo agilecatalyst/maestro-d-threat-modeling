@@ -15,6 +15,7 @@ export interface ThreatModelListItem {
   diagram_path?: string | null;
   application_type?: string | null;
   updated_at?: string | null;
+  threat_count?: number | null;
 }
 
 export interface Asset {
@@ -57,6 +58,7 @@ export interface ThreatModelResult {
   application_type?: string | null;
   state: JobState;
   updated_at?: string | null;
+  input_description?: string | null;
   summary?: string;
   assets?: Asset[];
   flows?: {

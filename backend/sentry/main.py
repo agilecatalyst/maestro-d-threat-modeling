@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from chat import clear_session, run_chat
 from models import InvocationRequest
 from prompt import context_from_input
+from rate_limit import check_sentry_rate_limit
 from security import parse_cors_origins
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,8 @@ async def invocations(request: InvocationRequest, http_request: Request):
 
     if request_type == "history":
         return {"type": "history", "messages": []}
+
+    check_sentry_rate_limit(http_request)
 
     message = (
         input_data.get("message")

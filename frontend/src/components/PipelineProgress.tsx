@@ -17,9 +17,13 @@ function stepClass(current: string, stepStates: string[]) {
   return "";
 }
 
-export function PipelineProgress({ state }: { state: string }) {
+export function PipelineProgress({ state, error }: { state: string; error?: string | null }) {
   if (state === "FAILED") {
-    return <div className="error-banner">Pipeline failed — check agent logs or retry.</div>;
+    return (
+      <div className="error-banner">
+        Pipeline failed{error ? `: ${error}` : " — check agent logs or retry."}
+      </div>
+    );
   }
 
   return (

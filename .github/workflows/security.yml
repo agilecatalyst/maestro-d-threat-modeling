@@ -1,0 +1,40 @@
+name: Security audit
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Audit API dependencies
+        run: pip-audit -r backend/api/requirements.txt
+
+      - name: Audit agent dependencies
+        run: pip-audit -r backend/agent/requirements.txt
+
+      - name: Audit Sentry dependencies
+        run: pip-audit -r backend/sentry/requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+          npm audit --omit=dev

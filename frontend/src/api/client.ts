@@ -60,6 +60,59 @@ export async function listThreatModels(limit = 20) {
   );
 }
 
+export async function deleteThreatModel(id: string) {
+  return request<{ id: string; deleted: boolean }>(`/threat-designer/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function diagramFileUrl(id: string): string {
+  return `${API_BASE}/threat-designer/diagrams/${id}/file`;
+}
+
+export async function getApiHealth(): Promise<{ status: string; database?: string }> {
+  const response = await fetch(`${API_BASE}/health`);
+  return response.json() as Promise<{ status: string; database?: string }>;
+}
+
+export async function retryThreatModel(model: ThreatModelResult) {
+  if (!model.input_description?.trim()) {
+    throw new Error("No saved description — create a new model from the wizard.");
+  }
+  return startThreatModel({
+    id: model.id,
+    description: model.input_description.trim(),
+    title: model.title ?? undefined,
+    application_type: model.application_type ?? "hybrid",
+  });
+}
+
+export function mergeStatusIntoModel(
+  id: string,
+  status: JobStatusResponse,
+  prev: ThreatModelResult | null,
+): ThreatModelResult {
+  const detail = (status.detail ?? {}) as Partial<
+    Pick<ThreatModelResult, "summary" | "assets" | "flows" | "threats" | "meta" | "error">
+  >;
+  return {
+    id,
+    owner: prev?.owner ?? "local-user",
+    title: prev?.title,
+    diagram_path: prev?.diagram_path,
+    application_type: prev?.application_type,
+    input_description: prev?.input_description,
+    state: status.state,
+    updated_at: status.updated_at ?? prev?.updated_at,
+    summary: detail.summary ?? prev?.summary,
+    assets: detail.assets ?? prev?.assets,
+    flows: detail.flows ?? prev?.flows,
+    threats: detail.threats ?? prev?.threats,
+    meta: detail.meta ?? prev?.meta,
+    error: detail.error ?? prev?.error,
+  };
+}
+
 /** Default wait for local LLM pipeline (summary → assets → flows → threats loop). */
 export const POLL_TIMEOUT_MS = 600_000;
 
@@ -78,6 +131,7 @@ export function pollUntilComplete(
   onTick?: (state: string) => void,
   intervalMs = 2500,
   timeoutMs = POLL_TIMEOUT_MS,
+  onStatus?: (status: JobStatusResponse) => void,
 ): Promise<JobStatusResponse> {
   const started = Date.now();
   let lastState = "PROCESSING";
@@ -87,6 +141,7 @@ export function pollUntilComplete(
         const status = await getJobStatus(id);
         lastState = status.state;
         onTick?.(status.state);
+        onStatus?.(status);
         if (status.state === "COMPLETE" || status.state === "FAILED") {
           resolve(status);
           return;

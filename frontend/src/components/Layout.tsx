@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { StackHealth } from "./StackHealth";
 
 export function Layout() {
   return (
@@ -25,7 +26,7 @@ export function Layout() {
       </header>
       <Outlet />
       <footer style={{ marginTop: "2.5rem", color: "var(--text-muted)", fontSize: "0.8rem" }}>
-        Maestro&apos;D · OWASP-oriented · inference stays on your machine
+        Maestro&apos;D · OWASP-oriented · inference stays on your machine · <StackHealth />
       </footer>
     </div>
   );

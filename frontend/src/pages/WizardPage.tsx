@@ -3,6 +3,8 @@ import type { DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { startThreatModel, uploadDiagram } from "../api/client";
 
+const DESCRIPTION_MAX_LENGTH = 16_000;
+
 export function WizardPage() {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
@@ -34,6 +36,10 @@ export function WizardPage() {
     }
     if (description.trim().length < 10) {
       setError("Add a description of at least 10 characters.");
+      return;
+    }
+    if (description.length > DESCRIPTION_MAX_LENGTH) {
+      setError(`Description must be at most ${DESCRIPTION_MAX_LENGTH.toLocaleString()} characters.`);
       return;
     }
 
@@ -115,9 +121,13 @@ export function WizardPage() {
         <textarea
           id="description"
           value={description}
+          maxLength={DESCRIPTION_MAX_LENGTH}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Three-tier web app: browser, API gateway, PostgreSQL. External payment provider at trust boundary."
         />
+        <p className="hint" style={{ marginTop: "0.35rem", fontSize: "0.85rem", opacity: 0.75 }}>
+          {description.length.toLocaleString()} / {DESCRIPTION_MAX_LENGTH.toLocaleString()} characters
+        </p>
       </div>
 
       <div className="field">
