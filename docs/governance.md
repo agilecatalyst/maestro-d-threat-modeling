@@ -182,7 +182,7 @@ Gemma (host) →  product-LLM in app; optioneel Local Builder
 - [x] [agents.md](../agents.md) — sectie “Operating model (2026-06)”
 - [x] `.cursor/rules/maestro-governance.mdc` — alwaysApply in dit repo
 - [x] Co-creatie / rapport de pensée — Composer sparren & aanspreken (§6b)
-- [ ] Retroactief: slices 012–016 als VERIFIED markeren na pytest door Maître D (optioneel)
+- [x] Retroactief: slices 012–016 als VERIFIED markeren na pytest door Maître D (optioneel)
 
 ---
 

@@ -1,6 +1,7 @@
 # Sliced workload — Maestro'D ThreatModeling
 
-**Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)
+**Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)  
+**Verify:** [docs/qa/verify-pass-012-016.md](docs/qa/verify-pass-012-016.md) — 40 passed, 1 skipped (2026-06-09)
 
 ---
 
@@ -9,14 +10,14 @@
 | Slice | Status |
 |-------|--------|
 | 000–009 | VERIFIED |
-| **010–011** | **IMPLEMENTED** — PDF + JSON export |
-| **012** | **IMPLEMENTED** — threat edit, flow scan, Sentry |
-| **013** | **IMPLEMENTED** — DevSecOps hardening (compose, CORS, upload, SECURITY.md) |
-| **014** | **IMPLEMENTED** — License & attribution (Apache 2.0, NOTICE, THIRD_PARTY_NOTICES) |
-| **015** | **IMPLEMENTED** — Security ops (rate limits, audit log, description cap, CI) |
-| **016** | **IMPLEMENTED** — MVP polish (UX, delete, diagram thumb, partial results) |
+| **010–011** | **VERIFIED** — PDF + JSON export |
+| **012** | **VERIFIED** — threat edit, flow scan, Sentry |
+| **013** | **VERIFIED** — DevSecOps hardening |
+| **014** | **VERIFIED** — License & attribution |
+| **015** | **VERIFIED** — Security ops |
+| **016** | **VERIFIED** — MVP polish |
 
-MVP core **complete** · backlog: [docs/backlog.md](docs/backlog.md)
+MVP core **complete & verified** · next: [slice-017-db-backup.md](docs/specs/slice-017-db-backup.md)
 
 ---
 
@@ -24,8 +25,9 @@ MVP core **complete** · backlog: [docs/backlog.md](docs/backlog.md)
 
 | Veld | Waarde |
 |------|--------|
-| **Slice** | — (none — pick from [docs/backlog.md](docs/backlog.md)) |
-| **Status** | Awaiting next slice spec |
+| **Slice** | **017** — DB backup/restore (JSON) |
+| **Status** | `READY_FOR_REVIEW` — await Maître D **go** |
+| **Gate** | ≤8 code files · verify-pass green before IMPLEMENTED |
 
 ---
 
@@ -33,8 +35,7 @@ MVP core **complete** · backlog: [docs/backlog.md](docs/backlog.md)
 
 | Slice | Date |
 |-------|--------|
+| Verify pass 010–016 | 2026-06-09 |
+| Governance + co-creatie contract | 2026-06-09 |
 | 016 MVP polish | 2026-06-09 |
 | 015 security ops | 2026-06-09 |
-| 014 license & attribution | 2026-06-09 |
-| 010–011 export | 2026-06-09 |
-| 009 frontend | 2026-06-09 |

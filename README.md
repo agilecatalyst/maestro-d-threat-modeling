@@ -35,7 +35,8 @@ Open http://localhost:5173 — API at http://127.0.0.1:8000
 ```bash
 # Smoke (API up, catalog responds)
 bash scripts/smoke.sh
-# or from frontend/: npm run smoke
+# Full verify (010–016 regression)
+bash scripts/verify-pass.sh
 ```
 
 ## Referentie-fork
