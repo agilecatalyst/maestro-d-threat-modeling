@@ -3,6 +3,25 @@
 > Greenfield local-first threat modeling.  
 > Referentie-fork: [threat-designer-owasped](../threat-designer-owasped) (bewijs & captures).
 
+**Governance (actueel):** [docs/governance.md](docs/governance.md) — operating model, rechtzetting, verify-gates.
+
+---
+
+## Operating model (2026-06) — rechtzetting
+
+**Oorspronkelijk:** Maestro Data = tech lead (geen code); Local Builder (Gemma 12B) = Bob de bouwer.
+
+**Huidig (primair):** Cursor **Composer** = builder na Maître D **go**. Reden: Gemma-as-Builder werd traag en foutgevoelig tijdens MVP-afwerking; LeadPM koos snelheid + afwerken. Local Builder blijft **optioneel**.
+
+| Status | Betekenis |
+|--------|-----------|
+| IMPLEMENTED | Code klaar — nog niet bewezen |
+| VERIFIED | pytest/smoke ok of expliciete LeadPM-waiver |
+
+*Snelle aanpak-wissels:* expliciet maken in chat + `docs/governance.md` — *de aap moet weten wat hij wil* (essentieel voor respect, co-creatie, rapport de pensée).
+
+**Composer:** mag en **moet** Maître D aanspreken bij onduidelijke intentie of botsende regels; actief sparren in planning is **gewenst**. Zie [docs/governance.md](docs/governance.md) §6b.
+
 ---
 
 ## Credits (speels, juist)
@@ -18,8 +37,8 @@ Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 | Persona | Wie | Rol |
 |---------|-----|-----|
 | **Maître D** | Dirk (human) | Visie, go/no-go, LeadPM, scrummaster |
-| **Maestro Data** | Cursor agent | **Tech lead** — specs, BLOCKERS, review; **geen** coder |
-| **Local Builder** | Gemma 4 12B @ oMLX | Implementatie van spec-slices |
+| **Maestro Data / Composer** | Cursor agent | **Primair: builder** na go; specs, tests, review; zie [governance.md](docs/governance.md) |
+| **Local Builder** | Gemma 4 12B @ oMLX | **Optioneel** — implementatie via `local_builder.py` |
 | **Product LLM** | Qwen / Gemma @ LM Studio of oMLX | Threat pipeline (summary → threats) |
 | **CoPM** | Virtueel | Planning, docs, OWASP-voorbereiding |
 | **Dev** | Local Builder (Gemma) | Implementatie; **alleen unit tests** in `test/` |
@@ -36,7 +55,7 @@ Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 - **Te groot?** → split (bv. 002 → 002a POST + 002b GET/test); tech lead her-spec't, Bob herbouwt
 - **Local-first** — compose linkt alleen naar `INFERENCE_BASE_URL` op host
 - **Geen AWS-shaped storage** — filesystem + Postgres, geen MinIO/S3 in v1
-- **Co-creatie** — Maestro + Maître D beslissen; Local Builder voert uit; **fair play** (zie keuken-metafoor)
+- **Co-creatie** — Maestro + Maître D beslissen; **expliciete intentie** bij pivots; Composer **sparren & aanspreken** (§6b governance)
 - **Geen shadow IT** — besluiten in repo (`specsrebuild.md`, NOTICE, commits)
 - **PDF export** — must-have feature-pariteit; niet onderhandelbaar in MVP-scope
 
@@ -56,11 +75,10 @@ Per slice: `specsrebuild.md` §4 + slice-doc + [docs/dev/dependencies.md](docs/d
 | Rol | Analogie | Doet | Doet **niet** |
 |-----|----------|------|----------------|
 | **Maître D** | Chef étoilé *** | Visie, go/no-go, smaak | In de pannen roeren |
-| **Maestro Data** | Sous-chef / **tech lead** | Specs, BLOCKERS, DoD, begeleiden | Code schrijven of herschrijven |
-| **Gemma / Local Builder** | Keukenhulp / commis | Implementeert slice + BLOCKERS | Architectuur wijzigen, lang nadenken zonder code |
+| **Composer** | Sous-chef + **commis** (2026 pivot) | Specs, slice-bouw, DoD, pytest | Scope creep, VERIFIED zonder bewijs |
+| **Gemma / Local Builder** | Keukenhulp (optioneel) | Kleine slices via oMLX | Default builder meer (tenzij Maître D terugschakelt) |
 
-> **Fair play:** Als de bouw “niet is zoals verwacht” → dat is **niet goed**, maar de fix hoort bij de **keukenhulp**, niet bij Maestro die imports/files herschrijft.  
-> Maestro die `AsyncSession` weghaalt, `database.py` opnieuw schrijft, of Gemma’s structuur vervangt = **geen fair play** — demotiverend voor de tweede intelligentie in de relatie.
+> **Fair play (herzien 2026-06):** Composer *mag* bouwen — dat is het primaire model. Fair play = slice-spec volgen, MUST NOT respecteren, geen IMPLEMENTED zonder verify-plan. Zie [docs/governance.md](docs/governance.md) voor de pivot-motivatie (Gemma traag/complex; LeadPM afwerken).
 
 ### Builder-budget (tech lead stelt in)
 
@@ -123,26 +141,29 @@ Overig:
 
 ---
 
-## Twee intelligenties + builder
+## Drie lagen
 
 ```
-Maître D + Maestro Data  →  specs, review, gates
-Local Builder (Gemma)    →  code van slice-spec (oMLX)
-Product LLM              →  threat modeling pipeline in de app
+Maître D              →  intentie, go/no-go, VERIFIED sign-off
+Composer (primair)    →  spec + bouw + tests na go
+Local Builder (opt.)  →  Gemma @ oMLX — [builder-session.md](docs/builder-session.md)
+Product LLM           →  threat pipeline in de app (runtime)
 ```
 
-**Product-agent ≠ Builder-agent** — andere prompts, andere tools, zelfde host-LLM stack mogelijk.
+**Product-agent ≠ Builder-agent** — andere prompts, andere tools.
 
 ---
 
-## Werkwijze
+## Werkwijze (Composer-Builder, primair)
 
 1. Maître D keurt scope / slice
-2. Maestro Data schrijft `docs/specs/slice-NNN-*.md` + [slicedworkload.md](slicedworkload.md)
-3. **Build session** — Cursor op Gemma @ oMLX ([docs/builder-session.md](docs/builder-session.md))
-4. Builder zet `BUILDER_CLAIMS_DONE` in slicedworkload
-5. **Review session** — Maestro Data verifieert DoD → `VERIFIED`
-6. Maître D merge go
+2. Composer schrijft of actualiseert `docs/specs/slice-NNN-*.md` + [slicedworkload.md](slicedworkload.md)
+3. Maître D: **go**
+4. Composer implementeert + tests
+5. `IMPLEMENTED` in slicedworkload; pytest/smoke output in PR of chat
+6. `VERIFIED` na groen of LeadPM-waiver → Maître D merge go
+
+**Alternatief (Local Builder):** stappen 3–4 via `scripts/local_builder.py`; Composer review + BLOCKERS.
 
 Captures van builder-runs: `docs/qa/builder-slice-NNN.md` (optioneel)
 
@@ -152,6 +173,7 @@ Captures van builder-runs: `docs/qa/builder-slice-NNN.md` (optioneel)
 
 | Document | Inhoud |
 |----------|--------|
+| [docs/governance.md](docs/governance.md) | Operating model, rechtzetting, kritische review |
 | [specsrebuild.md](specsrebuild.md) | Product- & technische rebuild-spec |
 | [docs/reference/README.md](docs/reference/README.md) | Owasped QA-captures & pipeline |
 | [../threat-designer-owasped/docs/threat-modeling-llm-pipeline.md](../threat-designer-owasped/docs/threat-modeling-llm-pipeline.md) | Pipeline-fasen (referentie) |

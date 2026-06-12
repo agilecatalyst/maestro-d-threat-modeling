@@ -1,5 +1,7 @@
 # Sliced workload — Maestro'D ThreatModeling
 
+**Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)
+
 ---
 
 ## Stand van zaken

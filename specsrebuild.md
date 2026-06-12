@@ -2,7 +2,7 @@
 
 **Status:** v1.0 — LeadPM go (Maître D) — 2026-06-05  
 **Scope:** D1 greenfield rebuild — volwaardige analog AWS Threat Designer, local-first  
-**Bouw:** Maître D + Maestro Data (specs/review) · Local Builder Gemma 4 12B @ oMLX
+**Bouw:** Maître D + Composer (spec/bouw primair) · Local Builder Gemma 4 12B @ oMLX (optioneel) — zie [docs/governance.md](docs/governance.md)
 
 ---
 
