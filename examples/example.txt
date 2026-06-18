@@ -1,0 +1,3 @@
+The following images files in this folder all served as input , and the output was the PDF, yes simple with Gemma 4 12B , imagine the power of a better local model.
+We hope you like the lead by example approach and find this project useful in your daily life.
+
