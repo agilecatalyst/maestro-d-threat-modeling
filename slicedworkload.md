@@ -1,7 +1,7 @@
 # Sliced workload — Maestro'D ThreatModeling
 
 **Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)  
-**Verify:** [docs/qa/verify-pass-012-016.md](docs/qa/verify-pass-012-016.md) — 40 passed, 1 skipped (2026-06-09)
+**Verify:** [docs/qa/verify-pass-012-017.md](docs/qa/verify-pass-012-017.md) — 43 passed, 1 skipped (2026-06-09)
 
 ---
 
@@ -16,8 +16,9 @@
 | **014** | **VERIFIED** — License & attribution |
 | **015** | **VERIFIED** — Security ops |
 | **016** | **VERIFIED** — MVP polish |
+| **017** | **VERIFIED** — DB backup/restore JSON |
 
-MVP core **complete & verified** · next: [slice-017-db-backup.md](docs/specs/slice-017-db-backup.md)
+MVP core **complete** · next: [backlog.md](docs/backlog.md) (017b zip, P2)
 
 ---
 
@@ -25,9 +26,8 @@ MVP core **complete & verified** · next: [slice-017-db-backup.md](docs/specs/sl
 
 | Veld | Waarde |
 |------|--------|
-| **Slice** | **017** — DB backup/restore (JSON) |
-| **Status** | `READY_FOR_REVIEW` — await Maître D **go** |
-| **Gate** | ≤8 code files · verify-pass green before IMPLEMENTED |
+| **Slice** | — (pick from backlog) |
+| **Status** | 017 verified; await go on 017b or P2 |
 
 ---
 
@@ -35,7 +35,6 @@ MVP core **complete & verified** · next: [slice-017-db-backup.md](docs/specs/sl
 
 | Slice | Date |
 |-------|--------|
+| 017 DB backup/restore | 2026-06-09 |
 | Verify pass 010–016 | 2026-06-09 |
 | Governance + co-creatie contract | 2026-06-09 |
-| 016 MVP polish | 2026-06-09 |
-| 015 security ops | 2026-06-09 |

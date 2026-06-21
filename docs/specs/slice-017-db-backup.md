@@ -1,6 +1,6 @@
 # Slice 017 — DB backup & restore (JSON)
 
-**Status:** READY_FOR_REVIEW  
+**Status:** VERIFIED  
 **Depends on:** 016 VERIFIED  
 **Source:** [backlog.md](../backlog.md) P1
 
@@ -23,12 +23,12 @@
 
 ## Definition of Done
 
-- [ ] Backup returns all rows for local user
-- [ ] Restore recreates models after empty DB
-- [ ] pytest for backup/restore roundtrip
-- [ ] `bash scripts/verify-pass.sh` green
-- [ ] ≤8 production code files changed
+- [x] Backup returns all rows for local user
+- [x] Restore recreates models after empty DB
+- [x] pytest for backup/restore roundtrip
+- [x] `bash scripts/verify-pass.sh` green
+- [x] ≤8 production code files changed
 
 ## Gate
 
-Maître D **go** before implementation.
+Maître D **go** — 2026-06-09 · **verified** 2026-06-09

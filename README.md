@@ -16,7 +16,28 @@ See [NOTICE](NOTICE) for formal attribution. AWS Threat Designer is a trademark 
 
 ## Status
 
-**MVP 000–016** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [docs/backlog.md](docs/backlog.md).
+**MVP 000–017** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [docs/backlog.md](docs/backlog.md).
+
+## Who this is for (and not)
+
+**For:** security champions, architects, and developers who want **STRIDE-style threat modeling** with **diagram + description → editable catalog → PDF/JSON export**, where **inference stays on your machine** and LLM output is treated as a **review starting point**, not audit sign-off.
+
+**Not for:** enterprise GRC replacement, compliance certification, unattended production approval, or teams that prefer fully managed cloud AI over data residency. See [SECURITY.md](SECURITY.md).
+
+**Honest limit:** local models vary in quality; human review of threats and mitigations remains mandatory.
+
+## Data backup (disaster recovery)
+
+Bulk catalog export/import (Postgres rows — diagram files stay on disk volume):
+
+```bash
+curl -s http://127.0.0.1:8000/admin/backup -o maestro-d-backup.json
+curl -X POST http://127.0.0.1:8000/admin/restore \
+  -H 'Content-Type: application/json' \
+  -d "{\"mode\":\"replace\",\"backup\":$(cat maestro-d-backup.json)}"
+```
+
+Modes: `replace` (wipe local catalog then import) or `merge` (upsert by id). Zip of diagrams: backlog slice 017b.
 
 ## Quick start
 

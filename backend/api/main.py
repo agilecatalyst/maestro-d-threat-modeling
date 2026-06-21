@@ -8,7 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from database import SessionLocal, run_migrations
-from routes import diagrams, threat_models
+from routes import admin, diagrams, threat_models
 from security import parse_cors_origins
 
 
@@ -54,3 +54,4 @@ def health_check():
 
 app.include_router(diagrams.router)
 app.include_router(threat_models.router)
+app.include_router(admin.router)

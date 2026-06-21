@@ -36,6 +36,7 @@ Maestro'D Threat Modeling is designed **local-first** for personal or trusted-te
 - Description field capped at **16,000 characters** (API + UI).
 - In-memory rate limits (per client IP): upload 10/min, start job 5/min, flow scan 3/min, Sentry chat 10/min → HTTP 429. Disable in dev with `API_RATE_LIMIT_ENABLED=false`.
 - **Audit log** (`audit_log` table): threat PATCH and flow-scan mutations recorded with action, threat names, and source IP.
+- **Admin backup/restore** (`GET /admin/backup`, `POST /admin/restore`): localhost-trust only — no auth in v1; do not expose API to untrusted networks.
 
 ### LLM trust model (P1)
 

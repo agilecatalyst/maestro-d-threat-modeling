@@ -8,8 +8,8 @@ Items bewust **niet** in slice 016. Prioriteit voor volgende slices.
 
 | Item | Beschrijving | Motivatie |
 |------|--------------|-----------|
-| **DB JSON export** | `GET /admin/backup` → alle `threat_models` + `job_status` + `audit_log` als één JSON snapshot | Disaster recovery als Postgres volume weg is |
-| **DB JSON import** | `POST /admin/restore` — idempotent merge of replace; diagram files mee of apart zip | “Import/export” zonder handmatig psql |
+| **DB JSON export** | `GET /admin/backup` → alle `threat_models` + `job_status` + `audit_log` als één JSON snapshot | **Done in slice 017** |
+| **DB JSON import** | `POST /admin/restore` — merge or replace | **Done in slice 017** |
 | **Diagram archive** | Backup zip: JSON + `data/diagrams/` files | Compleet herstel op nieuwe machine |
 
 *Note:* Per-model JSON export bestaat al (`/export/json`). Backlog = **bulk** backup van de hele catalog.

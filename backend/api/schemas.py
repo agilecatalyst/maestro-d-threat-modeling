@@ -56,3 +56,8 @@ class ThreatModelListItem(BaseModel):
     application_type: Optional[str] = None
     updated_at: Optional[str] = None
     threat_count: Optional[int] = None
+
+
+class RestoreRequest(BaseModel):
+    mode: Literal["replace", "merge"]
+    backup: dict
