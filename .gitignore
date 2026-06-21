@@ -8,6 +8,7 @@ __pycache__/
 *.pyc
 .venv/
 .venv312/
+.venv-verify/
 .pytest_cache/
 node_modules/
 dist/
