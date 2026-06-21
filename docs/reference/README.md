@@ -1,16 +1,19 @@
 # Referentie — threat-designer-owasped
 
-De fork [`threat-designer-owasped`](../../../threat-designer-owasped) is **geen codebase om verder te migreren**, maar **bron van waarheid** voor:
+De fork [`threat-designer-owasped`](https://github.com/AgileCatalystDV/threat-designer-owasped) is **geen codebase om verder te migreren**, maar **bron van waarheid** voor bewezen pipeline-gedrag. **Essentiële captures staan ook in deze repo** (onder `docs/reference/`) zodat Maestro'D self-contained blijft.
 
-- Bewezen LLM-pipeline (summary → assets → flows → threats)
-- Parser-fallbacks (Gemma JSON, `[TOOL_REQUEST]`, Qwen tool calls)
-- QA-captures voor fixtures en Sprint 9-achtige mocks
-
-## Essentiële captures
+## Essentiële captures (in-repo)
 
 | Bestand | Inhoud |
 |---------|--------|
-| [partialexchangeqwen.md](../../../threat-designer-owasped/docs/qa/partialexchangeqwen.md) | Volledige agent-exchange — **pipeline-vragen & tools** |
+| [partialexchangeqwen.md](partialexchangeqwen.md) | Volledige LM Studio / Qwen agent-exchange — **pipeline-vragen & tools** |
+| [spar-specs-local-build-experiment.md](spar-specs-local-build-experiment.md) | Spar-artefact v0.1 — local bounded-slice experiment (historisch; actief: [specsrebuild.md](../../specsrebuild.md)) |
+| [examples/tmexample1.jpeg](../../examples/tmexample1.jpeg) | Voorbeeld threat-model diagram |
+
+## Essentiële captures (owasped fork, sibling clone)
+
+| Bestand | Inhoud |
+|---------|--------|
 | [assetresponsegemma4.md](../../../threat-designer-owasped/docs/qa/assetresponsegemma4.md) | Gemma 4 AssetsList JSON |
 | [dataflowresponsegemma4.md](../../../threat-designer-owasped/docs/qa/dataflowresponsegemma4.md) | Gemma 4 FlowsList JSON |
 | [threat-modeling-llm-pipeline.md](../../../threat-designer-owasped/docs/threat-modeling-llm-pipeline.md) | Fasen & routes |
