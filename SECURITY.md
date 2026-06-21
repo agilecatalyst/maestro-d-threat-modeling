@@ -45,6 +45,11 @@ Maestro'D Threat Modeling is designed **local-first** for personal or trusted-te
 - Sentry chat can mutate the threat catalog via internal API calls — keep `INTERNAL_API_KEY` set when Sentry is enabled on a shared network.
 - Do not paste secrets, credentials, or PII into descriptions or chat; they may appear in logs or exports.
 
+## Security audit
+
+External review (2026-06-09): [docs/qa/security-audit-2026-06-09.md](docs/qa/security-audit-2026-06-09.md)  
+Hardening work: [slice 018](docs/specs/slice-018-security-hardening-p0.md) (P0) → [slice 019](docs/specs/slice-019-security-hardening-p1.md) (P1) → [backlog](docs/backlog.md#p1--security-hardening-post-audit).
+
 ## Reporting vulnerabilities
 
 If you find a security issue in this project, open a private advisory or contact the repository maintainers. Do not open public issues for exploitable vulnerabilities before coordinated disclosure.

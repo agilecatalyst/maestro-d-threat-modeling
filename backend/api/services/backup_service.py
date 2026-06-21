@@ -12,8 +12,23 @@ from sqlalchemy.orm import Session
 from database import LOCAL_USER
 from models import AuditLog, JobStatus, ThreatModel
 from services.threat_model_document import SCHEMA_VERSION
+from storage import assert_safe_diagram_relative_path
 
 BACKUP_FORMAT_VERSION = "1"
+MAX_BACKUP_ROWS = 10_000
+MAX_JOB_DETAIL_LENGTH = 1_048_576
+ALLOWED_JOB_STATES = frozenset(
+    {
+        "PENDING",
+        "PROCESSING",
+        "SUMMARIZED",
+        "ASSETS_DONE",
+        "FLOWS_DONE",
+        "THREATS_DONE",
+        "COMPLETE",
+        "FAILED",
+    }
+)
 
 
 def _serialize_value(value: Any) -> Any:
@@ -85,6 +100,24 @@ def _validate_backup(backup: dict[str, Any]) -> None:
     for key in ("threat_models", "job_status", "audit_log"):
         if key not in backup or not isinstance(backup[key], list):
             raise HTTPException(status_code=400, detail=f"Backup missing list field: {key}")
+        if len(backup[key]) > MAX_BACKUP_ROWS:
+            raise HTTPException(status_code=400, detail=f"Backup exceeds max rows for {key}")
+
+    for row in backup["job_status"]:
+        state = row.get("state")
+        if state not in ALLOWED_JOB_STATES:
+            raise HTTPException(status_code=400, detail=f"Invalid job_status.state: {state!r}")
+        detail = row.get("detail")
+        if detail is not None and len(str(detail)) > MAX_JOB_DETAIL_LENGTH:
+            raise HTTPException(status_code=400, detail="job_status.detail exceeds max length")
+
+    for row in backup["threat_models"]:
+        diagram_path = row.get("diagram_path")
+        if diagram_path:
+            try:
+                assert_safe_diagram_relative_path(str(diagram_path))
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail="Invalid diagram_path in backup") from exc
 
 
 def _clear_owner_catalog(db: Session, owner: str) -> None:

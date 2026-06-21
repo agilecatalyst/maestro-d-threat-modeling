@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify pass for slices 010–017 — run with Docker stack up (postgres + api + tm-agent).
+# Verify pass for slices 010–018 — run with Docker stack up (postgres + api + tm-agent).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -32,7 +32,8 @@ $COMPOSE run --rm \
     /test/test_job_api.py /test/test_threat_mutations.py /test/test_audit_log.py \
     /test/test_rate_limit.py /test/test_description_cap.py /test/test_polish_016.py \
     /test/test_export.py /test/test_db.py /test/test_upload_validation.py \
-    /test/test_threat_mutations_unit.py /test/test_backup_restore.py -q --tb=line'
+    /test/test_threat_mutations_unit.py /test/test_backup_restore.py \
+    /test/test_diagram_path_hardening.py -q --tb=line'
 
 echo "→ AGENT container tests"
 $COMPOSE run --rm --no-deps \
@@ -41,7 +42,7 @@ $COMPOSE run --rm --no-deps \
   -e PYTHONPATH=/agent \
   tm-agent bash -c 'pip install -q pytest && pytest \
     /test/test_assets_parser.py /test/test_flows_parser.py /test/test_threats_parser.py \
-    /test/test_workflow_graph.py -q --tb=line'
+    /test/test_workflow_graph.py /test/test_agent_diagram_loader.py -q --tb=line'
 
 echo "→ Repair schema after API tests (pytest drop_all teardown)"
 TABLE_COUNT=$($COMPOSE exec -T postgres psql -U maestro -d maestro_d -tAc \

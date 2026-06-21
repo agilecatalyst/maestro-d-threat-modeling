@@ -28,6 +28,11 @@ def resolve_diagram_path(relative_path: str) -> Path:
     return _safe_path(relative_path)
 
 
+def assert_safe_diagram_relative_path(relative_path: str) -> None:
+    """Reject path traversal; does not require the file to exist."""
+    _safe_path(relative_path)
+
+
 def delete_diagram(relative_path: str | None) -> None:
     if not relative_path:
         return

@@ -1,7 +1,7 @@
 # Sliced workload — Maestro'D ThreatModeling
 
 **Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)  
-**Verify:** [docs/qa/verify-pass-012-017.md](docs/qa/verify-pass-012-017.md) — 43 passed, 1 skipped (2026-06-09)
+**Verify:** [docs/qa/verify-pass-012-018.md](docs/qa/verify-pass-012-018.md) — 51 passed, 1 skipped (2026-06-09)
 
 ---
 
@@ -17,8 +17,9 @@
 | **015** | **VERIFIED** — Security ops |
 | **016** | **VERIFIED** — MVP polish |
 | **017** | **VERIFIED** — DB backup/restore JSON |
+| **018** | **VERIFIED** — Security hardening P0 |
 
-MVP core **complete** · next: [backlog.md](docs/backlog.md) (017b zip, P2)
+MVP core **complete** · security audit: [docs/qa/security-audit-2026-06-09.md](docs/qa/security-audit-2026-06-09.md)
 
 ---
 
@@ -26,8 +27,8 @@ MVP core **complete** · next: [backlog.md](docs/backlog.md) (017b zip, P2)
 
 | Veld | Waarde |
 |------|--------|
-| **Slice** | — (pick from backlog) |
-| **Status** | 017 verified; await go on 017b or P2 |
+| **Slice** | **019** (recommended) or 017b / backlog P2 |
+| **Status** | 018 verified · await go on [019 P1 hardening](docs/specs/slice-019-security-hardening-p1.md) |
 
 ---
 
@@ -35,6 +36,8 @@ MVP core **complete** · next: [backlog.md](docs/backlog.md) (017b zip, P2)
 
 | Slice | Date |
 |-------|--------|
+| 018 Security hardening P0 | 2026-06-09 |
+| Security audit + hardening specs 018/019 | 2026-06-09 |
 | 017 DB backup/restore | 2026-06-09 |
 | Verify pass 010–016 | 2026-06-09 |
 | Governance + co-creatie contract | 2026-06-09 |

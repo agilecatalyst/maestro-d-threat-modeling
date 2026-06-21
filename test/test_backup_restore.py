@@ -126,3 +126,23 @@ def test_restore_merge_upserts_after_wipe(client, db_session):
     restore = client.post("/admin/restore", json={"mode": "merge", "backup": backup})
     assert restore.status_code == 200
     assert db_session.query(ThreatModel).filter(ThreatModel.id == model_id).count() == 1
+
+
+def test_restore_rejects_invalid_job_state(client, db_session):
+    _seed_catalog(db_session)
+    backup = client.get("/admin/backup").json()
+    backup["job_status"][0]["state"] = "EVIL"
+
+    response = client.post("/admin/restore", json={"mode": "merge", "backup": backup})
+    assert response.status_code == 400
+    assert "Invalid job_status.state" in response.json()["detail"]
+
+
+def test_restore_rejects_path_traversal_diagram(client, db_session):
+    _seed_catalog(db_session)
+    backup = client.get("/admin/backup").json()
+    backup["threat_models"][0]["diagram_path"] = "../../etc/passwd"
+
+    response = client.post("/admin/restore", json={"mode": "merge", "backup": backup})
+    assert response.status_code == 400
+    assert "diagram_path" in response.json()["detail"]
