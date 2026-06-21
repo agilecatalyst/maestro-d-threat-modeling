@@ -173,7 +173,9 @@ Captures van builder-runs: `docs/qa/builder-slice-NNN.md` (optioneel)
 
 | Document | Inhoud |
 |----------|--------|
-| [docs/governance.md](docs/governance.md) | Operating model, rechtzetting, kritische review |
+| [docs/governance.md](docs/governance.md) | Operating model, co-creatie, verify-gates |
+| [docs/adr/001-composer-primary-builder.md](docs/adr/001-composer-primary-builder.md) | Composer primary builder (accepted) |
+| [docs/adr/002-builder-model-sizing-vs-correction-budget.md](docs/adr/002-builder-model-sizing-vs-correction-budget.md) | Local builder sizing — proposed; [benchmark spec](docs/qa/builder-benchmark-qwen-vs-gemma.md) |
 | [specsrebuild.md](specsrebuild.md) | Product- & technische rebuild-spec |
 | [docs/reference/README.md](docs/reference/README.md) | Owasped QA-captures & pipeline |
 | [../threat-designer-owasped/docs/threat-modeling-llm-pipeline.md](../threat-designer-owasped/docs/threat-modeling-llm-pipeline.md) | Pipeline-fasen (referentie) |

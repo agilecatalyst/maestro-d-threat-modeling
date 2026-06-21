@@ -1,3 +1,12 @@
+# ADR index
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [001](001-composer-primary-builder.md) | Composer as primary builder | Accepted |
+| [002](002-builder-model-sizing-vs-correction-budget.md) | Builder model sizing vs correction budget | Proposed (await benchmark) |
+
+---
+
 # ADR template
 
 Copy to `docs/adr/NNN-short-title.md`. Max ~15 lines body + context.
