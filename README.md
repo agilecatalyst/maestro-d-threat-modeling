@@ -16,11 +16,11 @@ See [NOTICE](NOTICE) for formal attribution. AWS Threat Designer is a trademark 
 
 ## Status
 
-**MVP 000–017** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [docs/backlog.md](docs/backlog.md).
+**MVP 000–018 · 020 ready for review** — zie [slicedworkload.md](slicedworkload.md), [SECURITY.md](SECURITY.md), [docs/backlog.md](docs/backlog.md).
 
 ## Who this is for (and not)
 
-**For:** security champions, architects, and developers who want **STRIDE-style threat modeling** with **diagram + description → editable catalog → PDF/JSON export**, where **inference stays on your machine** and LLM output is treated as a **review starting point**, not audit sign-off.
+**For:** security champions, architects, and developers who want **STRIDE-style threat modeling** with **diagram + description → editable catalog → PDF/JSON export**, where **inference stays on your machine by default** (cloud providers are opt-in per role via `/settings`) and LLM output is treated as a **review starting point**, not audit sign-off.
 
 **Not for:** enterprise GRC replacement, compliance certification, unattended production approval, or teams that prefer fully managed cloud AI over data residency. See [SECURITY.md](SECURITY.md).
 
