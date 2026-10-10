@@ -99,7 +99,9 @@ graph LR
 ### Data Models / Contracts
 
 ```python
+
 # backend/api/models.py
+
 class LlmProviderProfile(Base):
     __tablename__ = "llm_provider_profiles"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -120,7 +122,9 @@ class LlmRoleBinding(Base):
 ```
 
 ```python
+
 # shared contract (duplicated in backend/agent and backend/sentry)
+
 @dataclass(frozen=True)
 class ProviderConfig:
     kind: str; model: str; base_url: str | None
@@ -169,7 +173,8 @@ POST   /admin/llm-providers/{id}/test     -> {ok, latency_ms, detail|error}
 - `backend/api/services/backup_service.py` — exclude provider tables
 - both `requirements.txt` — add `langchain-anthropic`, `langchain-google-genai`
 - `frontend/src/api/client.ts`, `frontend/src/App.tsx`, `frontend/src/components/Layout.tsx` (nav link), `frontend/src/types.ts`
-- `.env.example`, `docker-compose.yml` (pass `LLM_*` keys + `DATABASE_URL` already present for agent), `docs/dev/endpoints.md`, `README.md`
+- `.env.example`, `docker-compose.yml` (pass `LLM_*` keys + `DATABASE_URL` already present for agent)
+- Docs: `README.md` (stack table line 75), `docs/dev/endpoints.md`, `docs/dev/dependencies.md`, `docs/backlog.md`, `slicedworkload.md`, new `docs/specs/slice-020-pluggable-llm-providers.md`
 
 ### Risks
 
@@ -181,6 +186,23 @@ POST   /admin/llm-providers/{id}/test     -> {ok, latency_ms, detail|error}
 | Changing provider mid-run gives inconsistent models across pipeline stages | Acceptable for now; TTL keeps the window small — documented |
 | Non-OpenAI providers reject OpenAI-shaped structured-output calls used in [structured_tool_json.py](air-file://u3hct587rh0uab50te8l/workspaces/maestro-d-threat-modeling/backend/agent/structured_tool_json.py?type=file&root=%252F) | Validate each new provider against the existing text-block parsers; keep the text-parser fallback path that already exists |
 | Sentry cannot reach `api` at startup | Fall back to env config and log a warning rather than failing the container |
+
+# Documentation Audit
+
+State of the docs as of this plan, and what each one needs.
+
+| Doc | Current state | Required update |
+|-----|---------------|-----------------|
+| `README.md` | Stack table row 75: *"LLM — Host endpoint only (`INFERENCE_BASE_URL`) — LM Studio / oMLX"* | Rewrite the row to "pluggable providers (OpenAI-compatible / OpenAI / Anthropic / Gemini), configured in `/settings`"; keep the local-first framing in the intro |
+| `docs/dev/endpoints.md` | Only covers the **Builder** (oMLX script) and **Product** lanes for local inference; no REST endpoint catalogue | Add a "Provider configuration" section: the `/admin/llm-providers` routes, the four `kind` values and their required fields, and the `api_key_env` indirection |
+| `docs/dev/dependencies.md` | Canonical pin table; lists `backend/agent/requirements.txt` verbatim, last `pip-audit` 2026-06-08 | Add pinned `langchain-anthropic` and `langchain-google-genai` rows and update both inlined requirements blocks; note they are optional/lazy-imported |
+| `.env.example` | Has `MODEL_PROVIDER=ollama` which is **read nowhere** in the code | Make `MODEL_PROVIDER` meaningful (default `kind` for the env fallback) and add commented `LLM_OPENAI_API_KEY` / `LLM_ANTHROPIC_API_KEY` / `LLM_GEMINI_API_KEY` |
+| `docs/specs/` | Numbered slice specs end at `slice-019-security-hardening-p1.md` | New spec `docs/specs/slice-020-pluggable-llm-providers.md` following the slice-003a format (goal, allowed files, acceptance) |
+| `slicedworkload.md` | "Active slice" table says 019 pending; history/status table ends at 018 | Add slice 020 to the status + history tables and point "Active slice" at it once 019 lands |
+| `docs/backlog.md` | No LLM-provider item at all | Add a "Pluggable LLM providers" row under P1 linking to slice-020 |
+| `docs/qa/` | Verify passes end at `verify-pass-012-018.md` | Add `verify-pass-020.md` after the test run, matching the existing format |
+
+**Dependency note:** slice-019 (admin auth / `ADMIN_API_KEY`, removing `VITE_INTERNAL_API_KEY` from the browser) is still open. The new admin routes reuse the existing `require_internal_key` guard from `backend/api/security.py` and must be included in whatever slice-019 changes land, so the settings page does not become an unauthenticated write surface.
 
 # Testing
 
@@ -241,7 +263,7 @@ The api service serves `/admin/llm-providers` CRUD, role assignment, resolved-co
 - Add `backend/api/routes/llm_providers.py` with GET/POST/PUT/DELETE on `/admin/llm-providers`, `GET/PUT /admin/llm-providers/roles[/{role}]`, and `GET /admin/llm-providers/resolved/{role}`.
 - Return 409 when deleting a profile that is bound to a role.
 - Implement `POST /admin/llm-providers/{id}/test`: resolve the config, perform a minimal provider-appropriate round trip (model list for OpenAI-compatible, a 1-token completion otherwise) with a short timeout, and return `{ok, latency_ms, detail|error}`.
-- Register the router in `backend/api/main.py` alongside the existing admin router, honouring the `INTERNAL_API_KEY` guard used by other mutating routes.
+- Register the router in `backend/api/main.py` alongside the existing admin router, protecting every mutating route with the existing `require_internal_key` dependency from `backend/api/security.py`.
 - Add API-level tests to `test/test_llm_providers.py`: round-trip CRUD, secret never returned, allowlist rejection, 409 on bound delete.
 
 ###   Step 4: Wire tm-agent and sentry to the stored configuration
@@ -262,9 +284,13 @@ Operators can manage provider profiles, assign roles and test connections from `
 - Register the `/settings` route in `frontend/src/App.tsx` and add a nav link in `frontend/src/components/Layout.tsx`.
 
 ###   Step 6: Update configuration, compose and documentation
-A fresh checkout documents how to point Maestro'D at a cloud provider, and compose passes the needed secrets through.
+A fresh checkout documents how to point Maestro'D at a cloud provider, compose passes the needed secrets through, and every stale doc from the audit is corrected.
 
-- Update `.env.example`: document `MODEL_PROVIDER` as now-meaningful, add commented `LLM_OPENAI_API_KEY`, `LLM_ANTHROPIC_API_KEY`, `LLM_GEMINI_API_KEY` examples, and explain the api_key_env-by-reference model.
-- Update `docker-compose.yml` to pass the `LLM_*` variables into `tm-agent` and `sentry`, and add `THREAT_API_URL` fallback handling for sentry.
-- Update `docs/dev/endpoints.md` with the new admin endpoints and the provider matrix; refresh the LLM row in `README.md` so it no longer states host-endpoint-only.
-- Add a short `docs/specs/slice-0xx-pluggable-llm-providers.md` entry consistent with the existing slice-spec convention and link it from `slicedworkload.md`.
+- Update `.env.example`: make `MODEL_PROVIDER` meaningful (default `kind` for the env fallback), add commented `LLM_OPENAI_API_KEY` / `LLM_ANTHROPIC_API_KEY` / `LLM_GEMINI_API_KEY`, and explain the `api_key_env`-by-reference model.
+- Update `docker-compose.yml` to pass the `LLM_*` variables into `tm-agent` and `sentry`, and confirm `THREAT_API_URL` is set for sentry.
+- Rewrite the LLM row in the `README.md` stack table so it describes pluggable providers instead of "Host endpoint only".
+- Add a "Provider configuration" section to `docs/dev/endpoints.md`: the `/admin/llm-providers` routes, the four `kind` values with their required fields, and the `api_key_env` indirection.
+- Add pinned `langchain-anthropic` and `langchain-google-genai` rows to `docs/dev/dependencies.md` and refresh the inlined `backend/agent` / `backend/sentry` requirements blocks.
+- Write `docs/specs/slice-020-pluggable-llm-providers.md` in the slice-003a format (goal, allowed files, acceptance criteria).
+- Register slice 020 in the `slicedworkload.md` status/history tables and add a P1 "Pluggable LLM providers" row to `docs/backlog.md` linking to the spec.
+- Record the test run as `docs/qa/verify-pass-020.md`, matching the existing verify-pass format.
