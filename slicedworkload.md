@@ -1,7 +1,8 @@
 # Sliced workload — Maestro'D ThreatModeling
 
 **Governance:** [docs/governance.md](docs/governance.md) (Composer-Builder, verify-gates)  
-**Verify:** [docs/qa/verify-pass-012-018.md](docs/qa/verify-pass-012-018.md) — 51 passed, 1 skipped (2026-06-09)
+**Verify:** [docs/qa/verify-pass-012-018.md](docs/qa/verify-pass-012-018.md) — 51 passed, 1 skipped (2026-06-09)  
+**Verify (020):** [docs/qa/verify-pass-020.md](docs/qa/verify-pass-020.md) — offline sandbox; API/DB suites still to run on a networked machine
 
 ---
 

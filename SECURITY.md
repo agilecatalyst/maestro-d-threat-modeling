@@ -27,6 +27,7 @@ Maestro'D Threat Modeling is designed **local-first** for personal or trusted-te
 
 - Change defaults in `.env`: `POSTGRES_PASSWORD`, `INFERENCE_API_KEY`.
 - Optionally set `INTERNAL_API_KEY` for Sentry → API mutation calls (Sentry sends `X-Internal-Key`).
+- Cloud provider keys live in `.env` only (`LLM_OPENAI_API_KEY`, `LLM_ANTHROPIC_API_KEY`, `LLM_GEMINI_API_KEY`). A provider profile stores just the **name** of the variable (`api_key_env`), validated against `^(INFERENCE_API_KEY|LLM_[A-Z0-9_]+)$`; no secret is written to Postgres, API responses or backups.
 - Never commit `.env` or diagram uploads.
 
 ### Application (P1)
@@ -40,7 +41,8 @@ Maestro'D Threat Modeling is designed **local-first** for personal or trusted-te
 
 ### LLM trust model (P1)
 
-- User-supplied **description and diagram** are passed to the local LLM as prompt context. Treat them as untrusted input (prompt injection risk).
+- User-supplied **description and diagram** are passed to the configured LLM as prompt context. Treat them as untrusted input (prompt injection risk).
+- **Data residency:** selecting a cloud provider profile (`openai`, `anthropic`, `gemini`) in `/settings` sends that prompt context off your machine. Keep the default OpenAI-compatible host endpoint if data must stay local.
 - The LLM may suggest incorrect threats or mitigations; human review is mandatory before acting on output.
 - Sentry chat can mutate the threat catalog via internal API calls — keep `INTERNAL_API_KEY` set when Sentry is enabled on a shared network.
 - Do not paste secrets, credentials, or PII into descriptions or chat; they may appear in logs or exports.
