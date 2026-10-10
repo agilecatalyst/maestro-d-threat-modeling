@@ -30,6 +30,18 @@ Items bewust **niet** in slice 016. Prioriteit voor volgende slices.
 
 ---
 
+## P1 — Pluggable LLM providers
+
+| Item | Spec | Status |
+|------|------|--------|
+| Provider registry (`openai_compatible` / `openai` / `anthropic` / `gemini`) | [slice-020](specs/slice-020-pluggable-llm-providers.md) | Done in slice 020 |
+| Provider profielen + rolbinding in Postgres, beheerd via `/settings` | [slice-020](specs/slice-020-pluggable-llm-providers.md) | Done in slice 020 |
+| Secrets by reference (`api_key_env` allowlist, nooit in DB of backup) | [slice-020](specs/slice-020-pluggable-llm-providers.md) | Done in slice 020 |
+| Model discovery dropdown per provider | backlog (no spec yet) | Out of scope 020 |
+| Per-pipeline-stage modellen (summary vs assets vs threats) | backlog (no spec yet) | Out of scope 020 |
+
+---
+
 ## P1 — Data portability
 
 | Item | Beschrijving | Motivatie |

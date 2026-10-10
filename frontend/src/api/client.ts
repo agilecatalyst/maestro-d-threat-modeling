@@ -208,3 +208,61 @@ export async function scanFlowThreats(
     body: JSON.stringify(flow),
   });
 }
+
+const PROVIDERS_BASE = "/admin/llm-providers";
+
+export async function listLlmProviders() {
+  return request<import("../types").LlmProviderProfile[]>(PROVIDERS_BASE);
+}
+
+export async function createLlmProvider(payload: import("../types").LlmProviderProfileInput) {
+  return request<import("../types").LlmProviderProfile>(PROVIDERS_BASE, {
+    method: "POST",
+    headers: jsonHeaders(),
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateLlmProvider(
+  id: string,
+  payload: import("../types").LlmProviderProfileInput,
+) {
+  return request<import("../types").LlmProviderProfile>(`${PROVIDERS_BASE}/${id}`, {
+    method: "PUT",
+    headers: jsonHeaders(),
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteLlmProvider(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}${PROVIDERS_BASE}/${id}`, {
+    method: "DELETE",
+    headers: jsonHeaders(),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Delete failed (${response.status})`);
+  }
+}
+
+export async function getLlmRoleBindings() {
+  return request<import("../types").LlmRoleBindings>(`${PROVIDERS_BASE}/roles`);
+}
+
+export async function setLlmRoleBinding(
+  role: import("../types").LlmProviderRole,
+  profileId: string,
+) {
+  return request<import("../types").LlmProviderProfile>(`${PROVIDERS_BASE}/roles/${role}`, {
+    method: "PUT",
+    headers: jsonHeaders(),
+    body: JSON.stringify({ profile_id: profileId }),
+  });
+}
+
+export async function testLlmProvider(id: string) {
+  return request<import("../types").LlmProviderTestResult>(`${PROVIDERS_BASE}/${id}/test`, {
+    method: "POST",
+    headers: jsonHeaders(),
+  });
+}

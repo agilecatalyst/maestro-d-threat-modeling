@@ -28,7 +28,8 @@
 
 Inspired by AWS Threat Designer · Envisioned by **Maître D** ·  
 Designed & architected with Lead Architect **Maestro Data** (Cursor) ·  
-Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
+Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling) ·  
+Product LLM multi models — idea **Maître D**, execution via **JetBrains Cloud AIR** e.g.
 
 ---
 
@@ -39,7 +40,7 @@ Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 | **Maître D** | Dirk (human) | Visie, go/no-go, LeadPM, scrummaster |
 | **Maestro Data / Composer** | Cursor agent | **Primair: builder** na go; specs, tests, review; zie [governance.md](docs/governance.md) |
 | **Local Builder** | Gemma 4 12B @ oMLX | **Optioneel** — implementatie via `local_builder.py` |
-| **Product LLM** | Qwen / Gemma @ LM Studio of oMLX | Threat pipeline (summary → threats) |
+| **Product LLM** | Pluggable provider (default Qwen / Gemma @ LM Studio of oMLX; cloud o.a. **AIR Preview Cloud**) | Threat pipeline (summary → threats); provider per rol ingesteld in `/settings` — [slice-020](docs/specs/slice-020-pluggable-llm-providers.md) |
 | **CoPM** | Virtueel | Planning, docs, OWASP-voorbereiding |
 | **Dev** | Local Builder (Gemma) | Implementatie; **alleen unit tests** in `test/` |
 | **DevOps** | Virtueel | Docker Compose, volumes, geen MinIO |
@@ -53,7 +54,7 @@ Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 - **Plan eerst** — `specsrebuild.md` + slice-spec → go Maître D → bouwen
 - **Kleine slices** — één PR, **max 3 code-files**, **max 1 endpoint** per slice waar mogelijk; harde DoD (pytest)
 - **Te groot?** → split (bv. 002 → 002a POST + 002b GET/test); tech lead her-spec't, Bob herbouwt
-- **Local-first** — compose linkt alleen naar `INFERENCE_BASE_URL` op host
+- **Local-first** — default blijft het host endpoint (`INFERENCE_BASE_URL`); cloud providers zijn opt-in via een profiel in `/settings`, sleutels alleen by reference (`api_key_env`)
 - **Geen AWS-shaped storage** — filesystem + Postgres, geen MinIO/S3 in v1
 - **Co-creatie** — Maestro + Maître D beslissen; **expliciete intentie** bij pivots; Composer **sparren & aanspreken** (§6b governance)
 - **Geen shadow IT** — besluiten in repo (`specsrebuild.md`, NOTICE, commits)

@@ -16,6 +16,8 @@ Laatste audit: **2026-06-08** — `pip-audit` → **0 known vulnerabilities** (i
 | `pydantic` | `==2.11.5` | `>=2.7,<3` band (FastAPI docs) |
 | `httpx` | `==0.28.1` | alleen `tm-agent` (later slices) |
 | `python-dotenv` | `>=1.2.2` | transitief via uvicorn; expliciet voor CVE fix |
+| `langchain-anthropic` | `>=1.3,<2` | **optioneel** — alleen voor provider kind `anthropic`; lazy import in `llm_providers.py`, staat uitgecommentarieerd in de requirements |
+| `langchain-google-genai` | `>=3,<5` | **optioneel** — alleen voor provider kind `gemini`; zelfde lazy import, bandpin tot `pip-audit` met netwerk een exacte pin kan vastleggen |
 
 ### `backend/api/requirements.txt`
 
@@ -24,6 +26,13 @@ fastapi==0.136.3
 uvicorn[standard]==0.34.0
 pydantic==2.11.5
 python-dotenv>=1.2.2
+sqlalchemy==2.0.40
+alembic==1.15.2
+psycopg2-binary==2.9.10
+python-multipart==0.0.31
+httpx==0.28.1
+jinja2==3.1.6
+weasyprint==68.0
 ```
 
 ### `backend/agent/requirements.txt`
@@ -34,6 +43,35 @@ uvicorn[standard]==0.34.0
 pydantic==2.11.5
 httpx==0.28.1
 python-dotenv>=1.2.2
+langchain-openai==1.1.14
+langchain-core==1.3.3
+langgraph==1.0.10
+langgraph-prebuilt==1.0.8
+sqlalchemy==2.0.40
+psycopg2-binary==2.9.10
+
+# Optional cloud providers (lazy-imported by llm_providers.py; uncomment to enable)
+# langchain-anthropic>=1.3,<2
+# langchain-google-genai>=3,<5
+```
+
+### `backend/sentry/requirements.txt`
+
+```
+langgraph==1.0.10
+langgraph-prebuilt==1.0.8
+langchain-openai==1.1.14
+langchain-core==1.3.3
+fastapi==0.136.3
+starlette>=1.3.1
+uvicorn[standard]==0.34.0
+httpx==0.28.1
+pydantic==2.11.5
+python-dotenv>=1.2.2
+
+# Optional cloud providers (lazy-imported by llm_providers.py; uncomment to enable)
+# langchain-anthropic>=1.3,<2
+# langchain-google-genai>=3,<5
 ```
 
 ---

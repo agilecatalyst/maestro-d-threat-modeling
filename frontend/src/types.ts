@@ -81,3 +81,42 @@ export interface JobStatusResponse {
   updated_at?: string | null;
   retry?: number;
 }
+
+export type LlmProviderKind = "openai_compatible" | "openai" | "anthropic" | "gemini";
+
+export type LlmProviderRole = "threats" | "sentry";
+
+export interface LlmProviderProfile {
+  id: string;
+  name: string;
+  kind: LlmProviderKind;
+  base_url?: string | null;
+  model: string;
+  api_key_env?: string | null;
+  key_present: boolean;
+  temperature?: number | null;
+  max_tokens?: number | null;
+  timeout_sec: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface LlmProviderProfileInput {
+  name: string;
+  kind: LlmProviderKind;
+  base_url?: string | null;
+  model: string;
+  api_key_env?: string | null;
+  temperature?: number | null;
+  max_tokens?: number | null;
+  timeout_sec: number;
+}
+
+export type LlmRoleBindings = Record<LlmProviderRole, LlmProviderProfile | null>;
+
+export interface LlmProviderTestResult {
+  ok: boolean;
+  latency_ms: number;
+  detail?: string | null;
+  error?: string | null;
+}

@@ -47,7 +47,7 @@ def run_chat(
     cache_key = f"{session_id}:{threat_model_id}"
     tools = build_tools(threat_model_id)
     agent = create_react_agent(
-        get_chat_model(),
+        get_chat_model("sentry"),
         tools,
         prompt=build_system_prompt(context),
         checkpointer=_checkpointer,
