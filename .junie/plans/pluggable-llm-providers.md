@@ -60,6 +60,18 @@ Today every LLM call in Maestro'D goes through a hardcoded `ChatOpenAI` pointed 
 - A misconfigured or unreachable profile fails with a clear, actionable error rather than a bare `openai.APIConnectionError`.
 - Adding a provider SDK must not break the existing local-only, air-gapped deployment: the cloud SDKs are imported lazily.
 
+### Human-in-the-Loop (HITL)
+
+The plan is approved and implementation proceeds as written. During execution, stop and ask the human (the monkey) rather than guessing whenever:
+
+- A design choice in this plan turns out to be impossible or clearly wrong against the real code (e.g. `require_internal_key` does not exist in the expected shape, or slice-019 has already changed the admin auth surface).
+- A decision would widen the scope beyond this plan (extra provider kinds, extra roles, schema changes beyond the two tables).
+- An irreversible or destructive action is implied (dropping/renaming existing tables, rewriting backup payload format, touching `.env` with real secrets).
+- Tests fail for a reason that suggests the requirement itself is wrong, not the implementation.
+- A dependency pin in `docs/dev/dependencies.md` cannot be satisfied or forces upgrading an existing pinned package.
+
+Otherwise: no check-in per step — keep going.
+
 # Technical Design
 
 ### Current Implementation
