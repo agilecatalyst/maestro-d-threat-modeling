@@ -10,7 +10,8 @@ Licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) and [THIR
 
 Inspired by AWS Threat Designer · Envisioned by **Maître D** ·  
 Designed & architected with Lead Architect **Maestro Data** (Cursor) ·  
-Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
+Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling) ·  
+Product LLM ook draaibaar op **AIR Preview Cloud** (JetBrains AIR) — cloud provider, opt-in per rol
 
 See [NOTICE](NOTICE) for formal attribution. AWS Threat Designer is a trademark of Amazon.com, Inc.; this project is not affiliated with AWS.
 

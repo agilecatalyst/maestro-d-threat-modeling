@@ -28,7 +28,8 @@
 
 Inspired by AWS Threat Designer · Envisioned by **Maître D** ·  
 Designed & architected with Lead Architect **Maestro Data** (Cursor) ·  
-Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
+Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling) ·  
+Product LLM ook draaibaar op **AIR Preview Cloud** (JetBrains AIR) — juist is juist ;-)
 
 ---
 
@@ -39,7 +40,7 @@ Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling)
 | **Maître D** | Dirk (human) | Visie, go/no-go, LeadPM, scrummaster |
 | **Maestro Data / Composer** | Cursor agent | **Primair: builder** na go; specs, tests, review; zie [governance.md](docs/governance.md) |
 | **Local Builder** | Gemma 4 12B @ oMLX | **Optioneel** — implementatie via `local_builder.py` |
-| **Product LLM** | Pluggable provider (default Qwen / Gemma @ LM Studio of oMLX) | Threat pipeline (summary → threats); provider per rol ingesteld in `/settings` — [slice-020](docs/specs/slice-020-pluggable-llm-providers.md) |
+| **Product LLM** | Pluggable provider (default Qwen / Gemma @ LM Studio of oMLX; cloud o.a. **AIR Preview Cloud**) | Threat pipeline (summary → threats); provider per rol ingesteld in `/settings` — [slice-020](docs/specs/slice-020-pluggable-llm-providers.md) |
 | **CoPM** | Virtueel | Planning, docs, OWASP-voorbereiding |
 | **Dev** | Local Builder (Gemma) | Implementatie; **alleen unit tests** in `test/` |
 | **DevOps** | Virtueel | Docker Compose, volumes, geen MinIO |
