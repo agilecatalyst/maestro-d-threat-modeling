@@ -29,7 +29,7 @@
 Inspired by AWS Threat Designer · Envisioned by **Maître D** ·  
 Designed & architected with Lead Architect **Maestro Data** (Cursor) ·  
 Local inference — weapon of choice: **Gemma 4 12B** (coding & modeling) ·  
-Product LLM ook draaibaar op **AIR Preview Cloud** (JetBrains AIR) — juist is juist ;-)
+Product LLM multi models — idea **Maître D**, execution via **JetBrains Cloud AIR** e.g.
 
 ---
 
