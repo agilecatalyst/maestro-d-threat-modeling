@@ -22,6 +22,9 @@ export function Layout() {
           <NavLink to="/new" className={({ isActive }) => (isActive ? "active" : "")}>
             New model
           </NavLink>
+          <NavLink to="/settings" className={({ isActive }) => (isActive ? "active" : "")}>
+            Settings
+          </NavLink>
         </nav>
       </header>
       <Outlet />

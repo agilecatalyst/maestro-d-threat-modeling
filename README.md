@@ -72,7 +72,7 @@ Bewijs, QA-captures en pipeline-kennis: [`../threat-designer-owasped`](../threat
 | Backend | Python / FastAPI |
 | Data | PostgreSQL (persistent) |
 | Diagrammen | Local filesystem volume (geen MinIO/S3) |
-| LLM | Host endpoint only (`INFERENCE_BASE_URL`) — LM Studio / oMLX |
+| LLM | Pluggable providers — OpenAI-compatible (LM Studio / oMLX / Ollama / vLLM), OpenAI, Anthropic, Gemini — ingesteld in `/settings`, fallback op `INFERENCE_BASE_URL` |
 | Frontend | Vite + React (analoog upstream UX) |
 | Sentry | Optioneel — sparring-assistent |
 | Export | **PDF** (must), JSON (should), DOCX (could) |

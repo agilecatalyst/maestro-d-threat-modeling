@@ -249,7 +249,7 @@ Extend the existing pytest suite in [test](air-file://u3hct587rh0uab50te8l/works
 
 # Delivery Steps
 
-###   Step 1: Introduce the provider registry behind get_chat_model()
+### ✓ Step 1: Introduce the provider registry behind get_chat_model()
 All LLM construction goes through a provider registry that can build OpenAI-compatible, OpenAI cloud, Anthropic and Gemini models, with today's env behaviour unchanged.
 
 - Add `backend/agent/llm_providers.py` defining the `ProviderConfig` dataclass and `build_chat_model(cfg)` with a `kind -> factory` registry.
@@ -260,7 +260,7 @@ All LLM construction goes through a provider registry that can build OpenAI-comp
 - Add `langchain-anthropic` and `langchain-google-genai` to both `requirements.txt` files.
 - Add `test/test_llm_providers.py` covering each kind and the unchanged legacy env path.
 
-###   Step 2: Persist provider profiles and role bindings in Postgres
+### ✓ Step 2: Persist provider profiles and role bindings in Postgres
 Provider profiles and role bindings exist as real tables with an Alembic migration, and are excluded from backups.
 
 - Add `LlmProviderProfile` and `LlmRoleBinding` models to `backend/api/models.py` following the existing UUID/timestamp column conventions.
@@ -269,7 +269,7 @@ Provider profiles and role bindings exist as real tables with an Alembic migrati
 - Implement `backend/api/services/llm_provider_service.py`: create/update/delete with validation (`base_url` required for `openai_compatible`, known `kind`, `api_key_env` matching the `^(INFERENCE_API_KEY|LLM_[A-Z0-9_]+)$` allowlist), role binding, and `resolve(role)` with env fallback.
 - Update `backend/api/services/backup_service.py` so the new tables are not exported or restored.
 
-###   Step 3: Expose admin endpoints for CRUD, role binding and connection test
+### ✓ Step 3: Expose admin endpoints for CRUD, role binding and connection test
 The api service serves `/admin/llm-providers` CRUD, role assignment, resolved-config lookup and a live connection test.
 
 - Add `backend/api/routes/llm_providers.py` with GET/POST/PUT/DELETE on `/admin/llm-providers`, `GET/PUT /admin/llm-providers/roles[/{role}]`, and `GET /admin/llm-providers/resolved/{role}`.
@@ -278,7 +278,7 @@ The api service serves `/admin/llm-providers` CRUD, role assignment, resolved-co
 - Register the router in `backend/api/main.py` alongside the existing admin router, protecting every mutating route with the existing `require_internal_key` dependency from `backend/api/security.py`.
 - Add API-level tests to `test/test_llm_providers.py`: round-trip CRUD, secret never returned, allowlist rejection, 409 on bound delete.
 
-###   Step 4: Wire tm-agent and sentry to the stored configuration
+### ✓ Step 4: Wire tm-agent and sentry to the stored configuration
 The threat pipeline resolves its model from Postgres and Sentry resolves its model over HTTP, both with a TTL cache and env fallback.
 
 - Extend `backend/agent/llm_settings.py` to query `llm_role_bindings`/`llm_provider_profiles` via the existing `SessionLocal` from `backend/agent/db.py` using raw SQL, resolving the secret with `os.getenv(api_key_env)` behind the same allowlist check.
@@ -287,7 +287,7 @@ The threat pipeline resolves its model from Postgres and Sentry resolves its mod
 - Rework `backend/agent/inference.py` so `/inference/health` reports the resolved provider kind, model and source (`db` vs `env`), using a provider-appropriate probe instead of the hardcoded `/models` call.
 - Add `test/test_llm_settings_resolution.py` for DB override, role separation, cache hit count, allowlist enforcement and fallback-on-failure; update `test/test_inference.py` for the new payload.
 
-###   Step 5: Add the frontend settings page
+### ✓ Step 5: Add the frontend settings page
 Operators can manage provider profiles, assign roles and test connections from `/settings` in the UI.
 
 - Add typed client functions to `frontend/src/api/client.ts` for list/create/update/delete, role get/set, and the test endpoint; add the corresponding interfaces to `frontend/src/types.ts`.
@@ -295,7 +295,7 @@ Operators can manage provider profiles, assign roles and test connections from `
 - Add role selectors for `threats` and `sentry` that bind to an existing profile.
 - Register the `/settings` route in `frontend/src/App.tsx` and add a nav link in `frontend/src/components/Layout.tsx`.
 
-###   Step 6: Update configuration, compose and documentation
+### ✓ Step 6: Update configuration, compose and documentation
 A fresh checkout documents how to point Maestro'D at a cloud provider, compose passes the needed secrets through, and every stale doc from the audit is corrected.
 
 - Update `.env.example`: make `MODEL_PROVIDER` meaningful (default `kind` for the env fallback), add commented `LLM_OPENAI_API_KEY` / `LLM_ANTHROPIC_API_KEY` / `LLM_GEMINI_API_KEY`, and explain the `api_key_env`-by-reference model.

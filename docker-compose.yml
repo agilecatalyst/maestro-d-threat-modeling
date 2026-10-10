@@ -34,6 +34,13 @@ services:
       THREAT_DESIGNER_URL: http://tm-agent:8080
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-}
+      INFERENCE_BASE_URL: ${INFERENCE_BASE_URL:-}
+      INFERENCE_API_KEY: ${INFERENCE_API_KEY:-}
+      LOCAL_MODEL: ${LOCAL_MODEL:-}
+      LLM_OPENAI_API_KEY: ${LLM_OPENAI_API_KEY:-}
+      LLM_ANTHROPIC_API_KEY: ${LLM_ANTHROPIC_API_KEY:-}
+      LLM_GEMINI_API_KEY: ${LLM_GEMINI_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,9 +54,13 @@ services:
     container_name: maestro_d_agent
     env_file: .env
     environment:
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-}
       INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
       INFERENCE_API_KEY: ${INFERENCE_API_KEY}
       LOCAL_MODEL: ${LOCAL_MODEL}
+      LLM_OPENAI_API_KEY: ${LLM_OPENAI_API_KEY:-}
+      LLM_ANTHROPIC_API_KEY: ${LLM_ANTHROPIC_API_KEY:-}
+      LLM_GEMINI_API_KEY: ${LLM_GEMINI_API_KEY:-}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       DIAGRAM_STORAGE_PATH: /data/diagrams
     extra_hosts:
@@ -68,9 +79,13 @@ services:
     container_name: maestro_d_sentry
     env_file: .env
     environment:
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-}
       INFERENCE_BASE_URL: ${INFERENCE_BASE_URL}
       INFERENCE_API_KEY: ${INFERENCE_API_KEY}
       LOCAL_MODEL: ${LOCAL_MODEL}
+      LLM_OPENAI_API_KEY: ${LLM_OPENAI_API_KEY:-}
+      LLM_ANTHROPIC_API_KEY: ${LLM_ANTHROPIC_API_KEY:-}
+      LLM_GEMINI_API_KEY: ${LLM_GEMINI_API_KEY:-}
       THREAT_API_URL: http://api:8000
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}

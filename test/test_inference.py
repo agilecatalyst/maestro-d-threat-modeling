@@ -15,6 +15,13 @@ def test_inference_health():
     assert "status" in data
     assert "service" in data
     assert data["service"] == "maestro-d-agent"
+    assert data["provider_kind"] in (
+        "openai_compatible",
+        "openai",
+        "anthropic",
+        "gemini",
+    )
+    assert data["config_source"] in ("db", "env")
 
     if response.status_code == 503:
         pytest.skip("INFERENCE_BASE_URL not reachable (LLM offline)")

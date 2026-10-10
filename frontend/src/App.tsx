@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { CatalogPage } from "./pages/CatalogPage";
 import { ResultsPage } from "./pages/ResultsPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { WizardPage } from "./pages/WizardPage";
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
           <Route index element={<CatalogPage />} />
           <Route path="new" element={<WizardPage />} />
           <Route path="models/:id" element={<ResultsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

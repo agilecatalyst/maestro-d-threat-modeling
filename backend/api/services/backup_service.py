@@ -1,4 +1,9 @@
-"""Bulk JSON backup and restore for local threat model catalog."""
+"""Bulk JSON backup and restore for local threat model catalog.
+
+Scope is deliberately limited to threat models, job status and audit log.
+Environment-specific tables (``llm_provider_profiles``, ``llm_role_bindings``)
+are never exported or restored.
+"""
 
 from __future__ import annotations
 
